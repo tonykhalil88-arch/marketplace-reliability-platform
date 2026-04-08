@@ -15,10 +15,13 @@ from contextlib import asynccontextmanager
 from enum import Enum
 from typing import Optional
 
+import pathlib
+
 import uvicorn
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from circuit_breaker import CircuitBreaker
 from metrics import MetricsCollector, metrics_middleware
@@ -329,6 +332,17 @@ async def prometheus_metrics():
         content=metrics.to_prometheus_format(),
         media_type="text/plain; version=0.0.4; charset=utf-8",
     )
+
+
+# ─── Frontend ───────────────────────────────────────────────────────────────
+
+STATIC_DIR = pathlib.Path(__file__).parent / "static"
+
+
+@app.get("/", include_in_schema=False)
+async def serve_frontend():
+    """Serve the marketplace frontend."""
+    return FileResponse(STATIC_DIR / "index.html")
 
 
 # ─── Entrypoint ─────────────────────────────────────────────────────────────
