@@ -3,495 +3,679 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>InkVault &amp; PrintHive | Marketplace Reliability Platform</title>
+  <title>InkVault & PrintHive | Original Designs by Independent Artists</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #f8f8f8; color: #222; }
+    a { text-decoration: none; color: inherit; }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background: #f5f5f5;
-      color: #333;
-    }
-
-    /* ─── Top Banner ──────────────────────────────────────── */
-    .top-banner {
+    /* ─── Promo Banner ─────────────────────────────────── */
+    .promo-banner {
       background: #1a1a2e;
       color: #fff;
       text-align: center;
-      padding: 8px;
+      padding: 10px 16px;
       font-size: 13px;
-      letter-spacing: 0.5px;
+      font-weight: 500;
     }
-    .top-banner span { color: #e94560; font-weight: 600; }
+    .promo-banner strong { color: #ff6b6b; }
 
-    /* ─── Header ──────────────────────────────────────────── */
-    header {
+    /* ─── Header ───────────────────────────────────────── */
+    .header {
       background: #fff;
-      border-bottom: 1px solid #e0e0e0;
+      border-bottom: 1px solid #e8e8e8;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    .header-top {
+      display: flex;
+      align-items: center;
+      padding: 12px 40px;
+      gap: 24px;
+    }
+    .logo {
+      font-size: 22px;
+      font-weight: 900;
+      color: #ff6b6b;
+      white-space: nowrap;
+      letter-spacing: -1px;
+    }
+    .logo span { color: #6c5ce7; }
+    .search-box {
+      flex: 1;
+      max-width: 580px;
+      position: relative;
+    }
+    .search-box input {
+      width: 100%;
+      padding: 11px 16px 11px 44px;
+      border: 2px solid #e8e8e8;
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+      background: #f8f8f8;
+    }
+    .search-box input:focus { border-color: #ff6b6b; background: #fff; }
+    .search-icon {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      width: 18px; height: 18px; opacity: 0.4;
+    }
+    .header-actions { display: flex; gap: 16px; align-items: center; margin-left: auto; }
+    .header-actions a {
+      font-size: 13px; font-weight: 600; color: #555; padding: 8px 14px;
+      border-radius: 8px; transition: all 0.2s;
+    }
+    .header-actions a:hover { background: #f0f0f0; color: #222; }
+    .header-actions .btn-primary {
+      background: #ff6b6b; color: #fff; border-radius: 8px;
+    }
+    .header-actions .btn-primary:hover { background: #e55555; }
+
+    /* ─── Main Nav ─────────────────────────────────────── */
+    .main-nav {
+      display: flex;
+      gap: 0;
       padding: 0 40px;
+      border-top: 1px solid #f0f0f0;
+      background: #fff;
+      overflow-x: auto;
+    }
+    .nav-item {
+      padding: 12px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #555;
+      white-space: nowrap;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .nav-item:hover { color: #ff6b6b; border-bottom-color: #ff6b6b; }
+    .nav-item .new-badge {
+      font-size: 9px;
+      background: #ff6b6b;
+      color: #fff;
+      padding: 1px 5px;
+      border-radius: 4px;
+      margin-left: 4px;
+      vertical-align: top;
+      font-weight: 700;
+    }
+
+    /* ─── Mega Dropdown ────────────────────────────────── */
+    .nav-item .mega-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: #fff;
+      border: 1px solid #e8e8e8;
+      border-radius: 0 0 12px 12px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+      padding: 24px 28px;
+      min-width: 220px;
+      z-index: 999;
+    }
+    .nav-item:hover .mega-menu { display: block; }
+    .mega-menu a {
+      display: block;
+      padding: 6px 0;
+      font-size: 13px;
+      font-weight: 500;
+      color: #555;
+      transition: color 0.15s;
+    }
+    .mega-menu a:hover { color: #ff6b6b; }
+    .mega-menu a.mega-title {
+      font-weight: 700;
+      color: #222;
+      font-size: 14px;
+      padding-bottom: 8px;
+      margin-bottom: 4px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .mega-cols { display: flex; gap: 40px; }
+    .mega-col { min-width: 160px; }
+
+    /* ─── Hero ─────────────────────────────────────────── */
+    .hero {
+      position: relative;
+      height: 420px;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url('https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=1600&q=80') center/cover;
+      opacity: 0.15;
+    }
+    .hero-content { position: relative; z-index: 1; color: #fff; padding: 0 20px; }
+    .hero h1 { font-size: 48px; font-weight: 900; margin-bottom: 12px; letter-spacing: -1px; }
+    .hero h1 em { font-style: normal; color: #ff6b6b; }
+    .hero p { font-size: 18px; color: rgba(255,255,255,0.7); max-width: 520px; margin: 0 auto 28px; line-height: 1.5; }
+    .hero-cta {
+      display: inline-block;
+      background: #ff6b6b;
+      color: #fff;
+      padding: 14px 36px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .hero-cta:hover { background: #e55555; transform: translateY(-2px); }
+
+    /* ─── Section Titles ───────────────────────────────── */
+    .section { padding: 40px; max-width: 1360px; margin: 0 auto; }
+    .section-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      height: 64px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      margin-bottom: 20px;
     }
-    .logo {
-      font-size: 24px;
-      font-weight: 800;
-      color: #e94560;
-      text-decoration: none;
-      letter-spacing: -0.5px;
-    }
-    .logo-sub { color: #666; font-weight: 400; font-size: 14px; margin-left: 8px; }
+    .section-header h2 { font-size: 22px; font-weight: 800; }
+    .section-header a { font-size: 13px; font-weight: 600; color: #ff6b6b; }
 
-    .search-bar {
-      flex: 1;
-      max-width: 500px;
-      margin: 0 32px;
-      position: relative;
-    }
-    .search-bar input {
-      width: 100%;
-      padding: 10px 16px 10px 40px;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      font-size: 14px;
-      transition: border-color 0.2s;
-      outline: none;
-    }
-    .search-bar input:focus { border-color: #e94560; }
-    .search-bar::before {
-      content: "🔍";
-      position: absolute;
-      left: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 16px;
-    }
-
-    .nav-links { display: flex; gap: 20px; align-items: center; }
-    .nav-links a {
-      text-decoration: none;
-      color: #555;
-      font-size: 14px;
-      font-weight: 500;
-      transition: color 0.2s;
-    }
-    .nav-links a:hover { color: #e94560; }
-
-    /* ─── Marketplace Tabs ────────────────────────────────── */
-    .marketplace-tabs {
+    /* ─── Explore Tabs ─────────────────────────────────── */
+    .explore-tabs {
       display: flex;
-      justify-content: center;
-      gap: 0;
-      background: #fff;
-      border-bottom: 1px solid #e0e0e0;
+      gap: 10px;
+      margin-bottom: 24px;
+      overflow-x: auto;
+      padding-bottom: 4px;
     }
-    .tab {
-      padding: 14px 32px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      color: #888;
-      border-bottom: 3px solid transparent;
-      transition: all 0.2s;
-    }
-    .tab:hover { color: #333; }
-    .tab.active { color: #e94560; border-bottom-color: #e94560; }
-
-    /* ─── Hero ────────────────────────────────────────────── */
-    .hero {
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-      color: #fff;
-      padding: 48px 40px;
-      text-align: center;
-    }
-    .hero h1 { font-size: 36px; font-weight: 800; margin-bottom: 8px; }
-    .hero p { font-size: 16px; color: #aaa; max-width: 600px; margin: 0 auto 24px; }
-
-    /* ─── Status Bar ──────────────────────────────────────── */
-    .status-bar {
-      display: flex;
-      justify-content: center;
-      gap: 32px;
-      padding: 16px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 12px;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    .status-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-    }
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      display: inline-block;
-    }
-    .status-dot.green { background: #4ade80; box-shadow: 0 0 6px #4ade80; }
-    .status-dot.yellow { background: #fbbf24; box-shadow: 0 0 6px #fbbf24; }
-    .status-dot.red { background: #f87171; box-shadow: 0 0 6px #f87171; }
-
-    /* ─── Categories ──────────────────────────────────────── */
-    .categories {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      padding: 20px 40px;
-      flex-wrap: wrap;
-    }
-    .cat-pill {
+    .explore-tab {
       padding: 8px 20px;
       border-radius: 24px;
       font-size: 13px;
-      font-weight: 500;
+      font-weight: 600;
       cursor: pointer;
-      border: 1px solid #ddd;
+      border: 2px solid #e0e0e0;
       background: #fff;
       color: #555;
       transition: all 0.2s;
+      white-space: nowrap;
     }
-    .cat-pill:hover, .cat-pill.active { background: #e94560; color: #fff; border-color: #e94560; }
+    .explore-tab:hover, .explore-tab.active {
+      background: #ff6b6b; color: #fff; border-color: #ff6b6b;
+    }
 
-    /* ─── Product Grid ────────────────────────────────────── */
-    .section-title {
-      padding: 24px 40px 8px;
-      font-size: 22px;
-      font-weight: 700;
-      color: #333;
+    /* ─── Category Grid ────────────────────────────────── */
+    .cat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px;
     }
+    .cat-card {
+      border-radius: 14px;
+      overflow: hidden;
+      position: relative;
+      aspect-ratio: 1;
+      cursor: pointer;
+      transition: transform 0.25s;
+    }
+    .cat-card:hover { transform: scale(1.03); }
+    .cat-card img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.4s;
+    }
+    .cat-card:hover img { transform: scale(1.08); }
+    .cat-card .cat-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%);
+      display: flex; align-items: flex-end; padding: 16px;
+    }
+    .cat-card .cat-label {
+      color: #fff; font-size: 15px; font-weight: 700;
+    }
+
+    /* ─── Product Grid ─────────────────────────────────── */
     .product-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       gap: 20px;
-      padding: 16px 40px 40px;
-      max-width: 1400px;
-      margin: 0 auto;
     }
     .product-card {
       background: #fff;
       border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
       transition: transform 0.2s, box-shadow 0.2s;
       cursor: pointer;
     }
     .product-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      transform: translateY(-6px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.1);
     }
-    .product-image {
+    .product-img {
       width: 100%;
       aspect-ratio: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 64px;
-      position: relative;
-    }
-    .product-marketplace {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .product-marketplace.inkvault { background: #e94560; color: #fff; }
-    .product-marketplace.printhive { background: #6c5ce7; color: #fff; }
-
-    .product-info { padding: 14px 16px; }
-    .product-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: #333;
-      margin-bottom: 4px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .product-artist {
-      font-size: 12px;
-      color: #888;
-      margin-bottom: 8px;
-    }
-    .product-artist a { color: #e94560; text-decoration: none; }
-    .product-bottom {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .product-price { font-size: 16px; font-weight: 700; color: #333; }
-    .product-category {
-      font-size: 11px;
-      color: #888;
+      object-fit: cover;
       background: #f0f0f0;
-      padding: 3px 10px;
-      border-radius: 12px;
     }
-    .product-tags {
-      display: flex;
-      gap: 4px;
-      margin-top: 8px;
-      flex-wrap: wrap;
+    .product-info { padding: 14px 16px; }
+    .product-title { font-size: 14px; font-weight: 600; margin-bottom: 3px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-artist { font-size: 12px; color: #888; margin-bottom: 8px; }
+    .product-artist strong { color: #ff6b6b; font-weight: 600; }
+    .product-bottom { display: flex; justify-content: space-between; align-items: center; }
+    .product-price { font-size: 16px; font-weight: 800; }
+    .product-badge {
+      font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px;
+      text-transform: uppercase; letter-spacing: 0.5px;
     }
-    .tag {
-      font-size: 10px;
-      color: #999;
-      background: #f8f8f8;
-      padding: 2px 8px;
-      border-radius: 8px;
+    .product-badge.inkvault { background: #ff6b6b; color: #fff; }
+    .product-badge.printhive { background: #6c5ce7; color: #fff; }
+    .product-tags { display: flex; gap: 4px; margin-top: 8px; flex-wrap: wrap; }
+    .product-tags span {
+      font-size: 10px; color: #aaa; background: #f5f5f5; padding: 2px 8px; border-radius: 8px;
     }
 
-    /* ─── SLO Dashboard Section ───────────────────────────── */
-    .slo-section {
-      background: #1a1a2e;
+    /* ─── Marketplace Split ────────────────────────────── */
+    .split-banner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .split-card {
+      border-radius: 16px;
       padding: 40px;
       color: #fff;
+      position: relative;
+      overflow: hidden;
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
     }
-    .slo-section h2 { text-align: center; font-size: 24px; margin-bottom: 24px; }
+    .split-card.ink { background: linear-gradient(135deg, #ff6b6b, #ee5a24); }
+    .split-card.print { background: linear-gradient(135deg, #6c5ce7, #a29bfe); }
+    .split-card h3 { font-size: 28px; font-weight: 900; margin-bottom: 6px; }
+    .split-card p { font-size: 14px; opacity: 0.85; margin-bottom: 16px; }
+    .split-card .split-btn {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(4px);
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 13px;
+      color: #fff;
+      width: fit-content;
+      transition: background 0.2s;
+    }
+    .split-card .split-btn:hover { background: rgba(255,255,255,0.3); }
+
+    /* ─── SLO Dashboard ────────────────────────────────── */
+    .slo-section {
+      background: #1a1a2e;
+      padding: 48px 40px;
+      color: #fff;
+    }
+    .slo-section h2 { text-align: center; font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+    .slo-subtitle { text-align: center; font-size: 14px; color: #666; margin-bottom: 32px; }
     .slo-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 16px;
       max-width: 1000px;
       margin: 0 auto;
     }
     .slo-card {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
       padding: 20px;
     }
-    .slo-card h3 { font-size: 13px; color: #aaa; margin-bottom: 8px; font-weight: 500; }
-    .slo-value { font-size: 32px; font-weight: 800; margin-bottom: 4px; }
+    .slo-card h3 { font-size: 12px; color: #888; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .slo-value { font-size: 32px; font-weight: 900; }
     .slo-value.green { color: #4ade80; }
     .slo-value.yellow { color: #fbbf24; }
-    .slo-target { font-size: 12px; color: #666; }
-    .slo-bar {
-      height: 4px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 2px;
-      margin-top: 12px;
-      overflow: hidden;
-    }
-    .slo-bar-fill { height: 100%; border-radius: 2px; transition: width 1s ease; }
+    .slo-target { font-size: 11px; color: #555; margin-top: 4px; }
+    .slo-bar { height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; margin-top: 12px; }
+    .slo-bar-fill { height: 100%; border-radius: 2px; }
     .slo-bar-fill.green { background: #4ade80; }
-    .slo-bar-fill.yellow { background: #fbbf24; }
 
-    /* ─── Metrics Ticker ──────────────────────────────────── */
-    .metrics-ticker {
-      display: flex;
-      justify-content: center;
-      gap: 40px;
-      padding: 16px;
-      background: rgba(255,255,255,0.03);
-      border-radius: 8px;
-      max-width: 800px;
-      margin: 24px auto 0;
+    .status-row {
+      display: flex; justify-content: center; gap: 32px; margin-top: 28px;
+      padding: 14px; background: rgba(255,255,255,0.03); border-radius: 10px;
+      max-width: 800px; margin-left: auto; margin-right: auto;
     }
-    .metric { text-align: center; }
-    .metric-value { font-size: 20px; font-weight: 700; color: #fff; }
-    .metric-label { font-size: 11px; color: #666; margin-top: 2px; }
+    .status-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #999; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .dot.green { background: #4ade80; box-shadow: 0 0 8px #4ade80; }
+    .dot.yellow { background: #fbbf24; box-shadow: 0 0 8px #fbbf24; }
+    .dot.red { background: #f87171; box-shadow: 0 0 8px #f87171; }
 
-    /* ─── Tech Stack Footer ───────────────────────────────── */
-    .tech-section {
-      background: #fff;
-      padding: 32px 40px;
-      text-align: center;
-      border-top: 1px solid #e0e0e0;
+    /* ─── Tech Footer ──────────────────────────────────── */
+    .tech-bar {
+      background: #fff; border-top: 1px solid #e8e8e8;
+      padding: 24px 40px; text-align: center;
     }
-    .tech-section h3 { font-size: 14px; color: #888; margin-bottom: 16px; font-weight: 500; }
-    .tech-pills {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    .tech-pill {
-      padding: 6px 16px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      background: #f5f5f5;
-      color: #555;
-      border: 1px solid #e0e0e0;
+    .tech-bar h4 { font-size: 11px; color: #bbb; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+    .tech-pills { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    .tech-pills span {
+      padding: 5px 14px; border-radius: 20px; font-size: 11px;
+      font-weight: 600; background: #f5f5f5; color: #777; border: 1px solid #eee;
     }
 
     footer {
-      background: #1a1a2e;
-      color: #666;
-      text-align: center;
-      padding: 24px;
-      font-size: 13px;
+      background: #1a1a2e; color: #555; text-align: center; padding: 20px;
+      font-size: 12px;
     }
-    footer a { color: #e94560; text-decoration: none; }
+    footer a { color: #ff6b6b; }
 
-    /* ─── Loading / Error ─────────────────────────────────── */
-    .loading {
-      text-align: center;
-      padding: 60px;
-      color: #888;
-      font-size: 16px;
-    }
+    .loading { text-align: center; padding: 60px; color: #aaa; }
     .spinner {
-      display: inline-block;
-      width: 32px;
-      height: 32px;
-      border: 3px solid #e0e0e0;
-      border-top-color: #e94560;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin-bottom: 12px;
+      width: 28px; height: 28px; border: 3px solid #e0e0e0; border-top-color: #ff6b6b;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+      display: inline-block; margin-bottom: 8px;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
     @media (max-width: 768px) {
-      header { padding: 0 16px; }
-      .hero { padding: 32px 16px; }
-      .hero h1 { font-size: 24px; }
-      .product-grid { padding: 16px; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-      .slo-section { padding: 24px 16px; }
-      .status-bar { flex-wrap: wrap; gap: 12px; }
+      .header-top { padding: 10px 16px; gap: 12px; }
+      .main-nav { padding: 0 16px; }
+      .hero { height: 300px; }
+      .hero h1 { font-size: 28px; }
+      .section { padding: 24px 16px; }
+      .split-banner { grid-template-columns: 1fr; }
+      .product-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .header-actions .hide-mobile { display: none; }
     }
   </style>
 </head>
 <body>
 
-  <div class="top-banner">
-    SLO-Driven Reliability Platform &mdash; <span>Powered by Kubernetes, Terraform, Datadog</span>
+  <!-- Promo Banner -->
+  <div class="promo-banner">
+    <strong>Free shipping</strong> on orders over $80 &mdash; Unique designs by independent artists worldwide
   </div>
 
-  <header>
-    <a href="/" class="logo">Marketplace <span class="logo-sub">Reliability Platform</span></a>
-    <div class="search-bar">
-      <input type="text" placeholder="Search artist designs..." id="searchInput">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-top">
+      <a href="/" class="logo">InkVault <span>&</span> <span>PrintHive</span></a>
+      <div class="search-box">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" placeholder="Search designs, artists, or products..." id="searchInput">
+      </div>
+      <div class="header-actions">
+        <a href="/docs" target="_blank" class="hide-mobile">API Docs</a>
+        <a href="/health" target="_blank" class="hide-mobile">System Health</a>
+        <a href="https://github.com/tonykhalil88-arch/marketplace-reliability-platform" target="_blank" class="btn-primary">GitHub Repo</a>
+      </div>
     </div>
-    <div class="nav-links">
-      <a href="/docs" target="_blank">API Docs</a>
-      <a href="/health" target="_blank">Health</a>
-      <a href="/metrics" target="_blank">Metrics</a>
-      <a href="https://github.com/tonykhalil88-arch/marketplace-reliability-platform" target="_blank">GitHub</a>
-    </div>
-  </header>
 
-  <div class="marketplace-tabs">
-    <div class="tab active" data-marketplace="all">All Products</div>
-    <div class="tab" data-marketplace="inkvault">InkVault</div>
-    <div class="tab" data-marketplace="printhive">PrintHive</div>
+    <!-- Main Navigation -->
+    <nav class="main-nav">
+      <div class="nav-item">
+        Discover
+        <div class="mega-menu">
+          <a href="#" class="mega-title">Explore</a>
+          <a href="#">Trending Now</a>
+          <a href="#">Fresh Finds</a>
+          <a href="#">Staff Picks</a>
+          <a href="#">Fan Favorites</a>
+          <a href="#">Rising Artists</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        Apparel
+        <div class="mega-menu" style="min-width: 360px;">
+          <div class="mega-cols">
+            <div class="mega-col">
+              <a href="#" class="mega-title">Tops</a>
+              <a href="#">Graphic Tees</a>
+              <a href="#">Premium Hoodies</a>
+              <a href="#">Tank Tops</a>
+              <a href="#">Long Sleeves</a>
+            </div>
+            <div class="mega-col">
+              <a href="#" class="mega-title">More</a>
+              <a href="#">Dresses</a>
+              <a href="#">Leggings</a>
+              <a href="#">Kids Apparel <span class="new-badge">NEW</span></a>
+              <a href="#">Baby Onesies</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="nav-item">
+        Stickers & Decals
+        <div class="mega-menu">
+          <a href="#" class="mega-title">All Stickers</a>
+          <a href="#">Holographic</a>
+          <a href="#">Die-Cut Vinyl</a>
+          <a href="#">Laptop Skins</a>
+          <a href="#">Bumper Stickers</a>
+          <a href="#">Water Bottle</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        Wall Art
+        <div class="mega-menu">
+          <a href="#" class="mega-title">All Wall Art</a>
+          <a href="#">Canvas Prints</a>
+          <a href="#">Framed Prints</a>
+          <a href="#">Posters</a>
+          <a href="#">Tapestries</a>
+          <a href="#">Metal Prints <span class="new-badge">NEW</span></a>
+        </div>
+      </div>
+      <div class="nav-item">
+        Home & Living
+        <div class="mega-menu" style="min-width: 360px;">
+          <div class="mega-cols">
+            <div class="mega-col">
+              <a href="#" class="mega-title">Kitchen</a>
+              <a href="#">Mugs</a>
+              <a href="#">Coasters</a>
+              <a href="#">Aprons</a>
+            </div>
+            <div class="mega-col">
+              <a href="#" class="mega-title">Bedroom</a>
+              <a href="#">Throw Pillows</a>
+              <a href="#">Duvet Covers</a>
+              <a href="#">Throw Blankets</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="nav-item">
+        Tech & Cases
+        <div class="mega-menu">
+          <a href="#" class="mega-title">All Tech</a>
+          <a href="#">iPhone Cases</a>
+          <a href="#">Samsung Cases</a>
+          <a href="#">Laptop Sleeves</a>
+          <a href="#">Mouse Pads</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        Bags & Carry
+        <div class="mega-menu">
+          <a href="#" class="mega-title">All Bags</a>
+          <a href="#">Tote Bags</a>
+          <a href="#">Backpacks</a>
+          <a href="#">Drawstring Bags</a>
+          <a href="#">Pouches</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        Stationery
+        <div class="mega-menu">
+          <a href="#" class="mega-title">All Stationery</a>
+          <a href="#">Notebooks</a>
+          <a href="#">Journals</a>
+          <a href="#">Greeting Cards</a>
+          <a href="#">Postcards</a>
+        </div>
+      </div>
+      <div class="nav-item">Gifts <span class="new-badge">NEW</span></div>
+    </nav>
   </div>
 
+  <!-- Hero Banner -->
   <div class="hero">
-    <h1>InkVault &amp; PrintHive</h1>
-    <p>Two global marketplaces where independent creators sell original designs on everyday products. This demo showcases the SLO-driven reliability infrastructure powering both platforms.</p>
-    <div class="status-bar" id="statusBar">
-      <div class="status-item"><span class="status-dot" id="healthDot"></span> <span id="healthText">Checking...</span></div>
-      <div class="status-item"><span class="status-dot" id="cbDot"></span> Circuit Breaker: <span id="cbState">...</span></div>
-      <div class="status-item"><span class="status-dot" id="regionDot"></span> Region: <span id="regionText">...</span></div>
+    <div class="hero-content">
+      <h1>Designs That <em>Mean</em> Something</h1>
+      <p>Discover original art from thousands of independent creators, printed on products you'll actually use.</p>
+      <a href="#products" class="hero-cta">Shop All Designs</a>
+    </div>
+  </div>
+
+  <!-- Explore Tabs + Category Grid -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Shop by Category</h2>
+      <a href="#">View all categories &rarr;</a>
+    </div>
+    <div class="cat-grid">
+      <div class="cat-card">
+        <img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&q=80" alt="T-Shirts" loading="lazy">
+        <div class="cat-overlay"><span class="cat-label">Graphic Tees</span></div>
+      </div>
+      <div class="cat-card">
+        <img src="https://images.unsplash.com/photo-1572804013427-4d7ca7268217?w=400&q=80" alt="Stickers" loading="lazy">
+        <div class="cat-overlay"><span class="cat-label">Stickers</span></div>
+      </div>
+      <div class="cat-card">
+        <img src="https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=400&q=80" alt="Mugs" loading="lazy">
+        <div class="cat-overlay"><span class="cat-label">Mugs</span></div>
+      </div>
+      <div class="cat-card">
+        <img src="https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?w=400&q=80" alt="Wall Art" loading="lazy">
+        <div class="cat-overlay"><span class="cat-label">Wall Art</span></div>
+      </div>
+      <div class="cat-card">
+        <img src="https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=400&q=80" alt="Phone Cases" loading="lazy">
+        <div class="cat-overlay"><span class="cat-label">Phone Cases</span></div>
+      </div>
+      <div class="cat-card">
+        <img src="https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=400&q=80" alt="Hoodies" loading="lazy">
+        <div class="cat-overlay"><span class="cat-label">Hoodies</span></div>
+      </div>
+      <div class="cat-card">
+        <img src="https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=400&q=80" alt="Notebooks" loading="lazy">
+        <div class="cat-overlay"><span class="cat-label">Notebooks</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Marketplace Split -->
+  <div class="section" style="padding-top: 0;">
+    <div class="split-banner">
+      <div class="split-card ink">
+        <h3>InkVault</h3>
+        <p>Bold designs. Street culture. Limited drops from underground artists.</p>
+        <a href="#" class="split-btn" data-filter="inkvault">Shop InkVault &rarr;</a>
+      </div>
+      <div class="split-card print">
+        <h3>PrintHive</h3>
+        <p>Nature-inspired art. Everyday essentials. The collective creative hive.</p>
+        <a href="#" class="split-btn" data-filter="printhive">Shop PrintHive &rarr;</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trending Products -->
+  <div class="section" id="products">
+    <div class="section-header">
+      <h2>Trending Designs</h2>
+      <a href="/docs" target="_blank">Browse API &rarr;</a>
+    </div>
+    <div class="explore-tabs">
+      <div class="explore-tab active" data-marketplace="all">All</div>
+      <div class="explore-tab" data-marketplace="inkvault">InkVault</div>
+      <div class="explore-tab" data-marketplace="printhive">PrintHive</div>
+    </div>
+    <div class="product-grid" id="productGrid">
+      <div class="loading"><div class="spinner"></div><br>Loading designs...</div>
+    </div>
+  </div>
+
+  <!-- SLO Dashboard -->
+  <div class="slo-section">
+    <h2>Platform Reliability Dashboard</h2>
+    <p class="slo-subtitle">Real-time SLO metrics powering both marketplaces</p>
+    <div class="slo-grid">
+      <div class="slo-card">
+        <h3>Availability</h3>
+        <div class="slo-value green" id="availSlo">99.9%</div>
+        <div class="slo-target">Target: 99.9% / 30d window</div>
+        <div class="slo-bar"><div class="slo-bar-fill green" style="width: 100%"></div></div>
+      </div>
+      <div class="slo-card">
+        <h3>Latency P99</h3>
+        <div class="slo-value green" id="latencySlo">--ms</div>
+        <div class="slo-target">Target: &lt;500ms</div>
+        <div class="slo-bar"><div class="slo-bar-fill green" style="width: 85%"></div></div>
+      </div>
+      <div class="slo-card">
+        <h3>Error Budget</h3>
+        <div class="slo-value green">43.2 min</div>
+        <div class="slo-target">Monthly remaining</div>
+        <div class="slo-bar"><div class="slo-bar-fill green" style="width: 100%"></div></div>
+      </div>
+      <div class="slo-card">
+        <h3>Requests</h3>
+        <div class="slo-value green" id="totalReqs">0</div>
+        <div class="slo-target">Total served</div>
+        <div class="slo-bar"><div class="slo-bar-fill green" style="width: 30%"></div></div>
+      </div>
+    </div>
+    <div class="status-row">
+      <div class="status-item"><span class="dot" id="healthDot"></span> <span id="healthText">Checking...</span></div>
+      <div class="status-item"><span class="dot" id="cbDot"></span> Circuit Breaker: <span id="cbState">...</span></div>
+      <div class="status-item"><span class="dot green"></span> Region: <span id="regionText">...</span></div>
       <div class="status-item">Uptime: <span id="uptimeText">...</span></div>
     </div>
   </div>
 
-  <div class="categories" id="categories">
-    <div class="cat-pill active" data-category="all">All</div>
-    <div class="cat-pill" data-category="t-shirts">T-Shirts</div>
-    <div class="cat-pill" data-category="stickers">Stickers</div>
-    <div class="cat-pill" data-category="mugs">Mugs</div>
-    <div class="cat-pill" data-category="stationery">Stationery</div>
-    <div class="cat-pill" data-category="phone-cases">Phone Cases</div>
-  </div>
-
-  <div class="section-title" id="productTitle">Featured Designs</div>
-  <div class="product-grid" id="productGrid">
-    <div class="loading"><div class="spinner"></div><br>Loading products...</div>
-  </div>
-
-  <div class="slo-section">
-    <h2>Platform Reliability Dashboard</h2>
-    <div class="slo-grid">
-      <div class="slo-card">
-        <h3>Availability SLO</h3>
-        <div class="slo-value green" id="availSlo">99.9%</div>
-        <div class="slo-target">Target: 99.9% (30-day)</div>
-        <div class="slo-bar"><div class="slo-bar-fill green" id="availBar" style="width: 100%"></div></div>
-      </div>
-      <div class="slo-card">
-        <h3>Latency SLO (p99)</h3>
-        <div class="slo-value green" id="latencySlo">--ms</div>
-        <div class="slo-target">Target: &lt;500ms (US) / &lt;700ms (AU)</div>
-        <div class="slo-bar"><div class="slo-bar-fill green" id="latencyBar" style="width: 85%"></div></div>
-      </div>
-      <div class="slo-card">
-        <h3>Error Budget Remaining</h3>
-        <div class="slo-value green" id="budgetSlo">43.2 min</div>
-        <div class="slo-target">Monthly budget at 99.9%</div>
-        <div class="slo-bar"><div class="slo-bar-fill green" id="budgetBar" style="width: 100%"></div></div>
-      </div>
-      <div class="slo-card">
-        <h3>Active Requests</h3>
-        <div class="slo-value green" id="activeReqs">0</div>
-        <div class="slo-target">Current in-flight requests</div>
-        <div class="slo-bar"><div class="slo-bar-fill green" style="width: 10%"></div></div>
-      </div>
-    </div>
-    <div class="metrics-ticker">
-      <div class="metric"><div class="metric-value" id="totalReqs">0</div><div class="metric-label">Total Requests</div></div>
-      <div class="metric"><div class="metric-value" id="circuitState">Closed</div><div class="metric-label">Circuit Breaker</div></div>
-      <div class="metric"><div class="metric-value" id="serviceVersion">--</div><div class="metric-label">Service Version</div></div>
-      <div class="metric"><div class="metric-value" id="deployRegion">--</div><div class="metric-label">Deploy Region</div></div>
-    </div>
-  </div>
-
-  <div class="tech-section">
-    <h3>INFRASTRUCTURE STACK</h3>
+  <!-- Tech Stack -->
+  <div class="tech-bar">
+    <h4>Infrastructure Stack</h4>
     <div class="tech-pills">
-      <span class="tech-pill">Kubernetes</span>
-      <span class="tech-pill">AWS ECS</span>
-      <span class="tech-pill">Terraform</span>
-      <span class="tech-pill">Helm</span>
-      <span class="tech-pill">Datadog</span>
-      <span class="tech-pill">Buildkite</span>
-      <span class="tech-pill">GitHub Actions</span>
-      <span class="tech-pill">Cloudflare</span>
-      <span class="tech-pill">Docker</span>
-      <span class="tech-pill">FastAPI</span>
-      <span class="tech-pill">Prometheus</span>
+      <span>Kubernetes</span><span>AWS ECS</span><span>Terraform</span><span>Helm</span>
+      <span>Datadog</span><span>Buildkite</span><span>GitHub Actions</span><span>Cloudflare</span>
+      <span>Docker</span><span>FastAPI</span><span>Prometheus</span>
     </div>
   </div>
 
   <footer>
-    InkVault &amp; PrintHive &mdash; Marketplace Reliability Platform &mdash;
+    InkVault & PrintHive &mdash; Marketplace Reliability Platform &mdash;
     <a href="https://github.com/tonykhalil88-arch/marketplace-reliability-platform" target="_blank">View on GitHub</a>
   </footer>
 
 <script>
-  const PRODUCT_COLORS = {
-    'prod-001': { bg: 'linear-gradient(135deg, #0f0c29, #302b63, #e94560)', emoji: '⚔️🌃' },
-    'prod-002': { bg: 'linear-gradient(135deg, #f5af19, #f12711, #0f3460)', emoji: '🧭🌍' },
-    'prod-003': { bg: 'linear-gradient(135deg, #3a1c71, #d76d77, #ffaf7b)', emoji: '☕😤' },
-    'prod-004': { bg: 'linear-gradient(135deg, #0a3d2e, #56ab2f, #a8e063)', emoji: '🌿📐' },
-    'prod-005': { bg: 'linear-gradient(135deg, #6c5ce7, #a29bfe, #dfe6e9)', emoji: '🦝🎧' },
-    'prod-006': { bg: 'linear-gradient(135deg, #0c3547, #1cb5e0, #56ab2f)', emoji: '🦊🌌' },
-    'prod-007': { bg: 'linear-gradient(135deg, #1a1a2e, #e94560, #16213e)', emoji: '⌨️😵' },
-    'prod-008': { bg: 'linear-gradient(135deg, #f2994a, #f2c94c, #eb5757)', emoji: '🌵🌺' },
+  // ─── Product images (Unsplash) mapped to product IDs ──
+  const PRODUCT_IMAGES = {
+    'prod-001': 'https://images.unsplash.com/photo-1503341504253-dff4855bf5bb?w=500&q=80',
+    'prod-002': 'https://images.unsplash.com/photo-1501621965386-5ba2a4e79c24?w=500&q=80',
+    'prod-003': 'https://images.unsplash.com/photo-1572119865084-43c285814d63?w=500&q=80',
+    'prod-004': 'https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=500&q=80',
+    'prod-005': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500&q=80',
+    'prod-006': 'https://images.unsplash.com/photo-1507400492013-162706c8c05e?w=500&q=80',
+    'prod-007': 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=500&q=80',
+    'prod-008': 'https://images.unsplash.com/photo-1509587584298-0f3b3a3a1797?w=500&q=80',
   };
 
   let allProducts = [];
   let currentMarketplace = 'all';
-  let currentCategory = 'all';
 
-  // ── Fetch Products ──
   async function loadProducts() {
     try {
       const resp = await fetch('/api/products');
@@ -499,147 +683,115 @@
       renderProducts();
     } catch (e) {
       document.getElementById('productGrid').innerHTML =
-        '<div class="loading">Failed to load products. Is the API running?</div>';
+        '<div class="loading">Failed to load products</div>';
     }
   }
 
   function renderProducts() {
     let filtered = allProducts;
-    if (currentMarketplace !== 'all') {
+    if (currentMarketplace !== 'all')
       filtered = filtered.filter(p => p.marketplace === currentMarketplace);
-    }
-    if (currentCategory !== 'all') {
-      filtered = filtered.filter(p => p.category === currentCategory);
-    }
 
     const search = document.getElementById('searchInput').value.toLowerCase();
-    if (search) {
+    if (search)
       filtered = filtered.filter(p =>
         p.title.toLowerCase().includes(search) ||
         p.artist.toLowerCase().includes(search) ||
         p.tags.some(t => t.includes(search))
       );
-    }
 
     const grid = document.getElementById('productGrid');
-    if (filtered.length === 0) {
-      grid.innerHTML = '<div class="loading">No products found</div>';
+    if (!filtered.length) {
+      grid.innerHTML = '<div class="loading">No designs found</div>';
       return;
     }
 
-    grid.innerHTML = filtered.map(p => {
-      const style = PRODUCT_COLORS[p.id] || { bg: '#ddd', emoji: '🎨' };
-      return `
-        <div class="product-card" onclick="showProduct('${p.id}')">
-          <div class="product-image" style="background: ${style.bg}">
-            <span>${style.emoji}</span>
-            <div class="product-marketplace ${p.marketplace}">${p.marketplace}</div>
+    grid.innerHTML = filtered.map(p => `
+      <div class="product-card" onclick="showProduct('${p.id}')">
+        <img class="product-img" src="${PRODUCT_IMAGES[p.id] || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500&q=80'}" alt="${p.title}" loading="lazy">
+        <div class="product-info">
+          <div class="product-title">${p.title}</div>
+          <div class="product-artist">by <strong>${p.artist.replace(/_/g, ' ')}</strong></div>
+          <div class="product-bottom">
+            <span class="product-price">$${p.price.toFixed(2)}</span>
+            <span class="product-badge ${p.marketplace}">${p.marketplace}</span>
           </div>
-          <div class="product-info">
-            <div class="product-title">${p.title}</div>
-            <div class="product-artist">by <a href="#">${p.artist}</a></div>
-            <div class="product-bottom">
-              <span class="product-price">$${p.price.toFixed(2)}</span>
-              <span class="product-category">${p.category}</span>
-            </div>
-            <div class="product-tags">
-              ${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}
-            </div>
-          </div>
+          <div class="product-tags">${p.tags.map(t => `<span>${t}</span>`).join('')}</div>
         </div>
-      `;
-    }).join('');
+      </div>
+    `).join('');
   }
 
   async function showProduct(id) {
-    const resp = await fetch(`/api/products/${id}`);
-    const data = await resp.json();
-    const enriched = data.artist_info ? 'Artist data enriched via artist-service' : 'Degraded mode (circuit breaker active)';
-    alert(`Product: ${data.title}\nPrice: $${data.price}\nMarketplace: ${data.marketplace}\n\n${enriched}`);
+    const resp = await fetch('/api/products/' + id);
+    const d = await resp.json();
+    const status = d.artist_info
+      ? 'Artist data enriched via artist-service (circuit breaker: closed)'
+      : 'Degraded mode — artist-service unavailable (circuit breaker active)';
+    alert(d.title + '\n$' + d.price + ' — ' + d.marketplace + '\n\n' + status);
   }
 
-  // ── Fetch Health ──
   async function loadHealth() {
     try {
       const resp = await fetch('/health');
-      const data = await resp.json();
-
-      const healthDot = document.getElementById('healthDot');
-      const healthText = document.getElementById('healthText');
-      healthDot.className = 'status-dot ' + (data.status === 'healthy' ? 'green' : data.status === 'degraded' ? 'yellow' : 'red');
-      healthText.textContent = data.status.charAt(0).toUpperCase() + data.status.slice(1);
-
-      const dep = data.dependencies.find(d => d.name === 'artist-service');
+      const d = await resp.json();
+      const hd = document.getElementById('healthDot');
+      hd.className = 'dot ' + (d.status === 'healthy' ? 'green' : d.status === 'degraded' ? 'yellow' : 'red');
+      document.getElementById('healthText').textContent = d.status;
+      const dep = d.dependencies.find(x => x.name === 'artist-service');
       if (dep) {
-        const cbDot = document.getElementById('cbDot');
-        const cbState = document.getElementById('cbState');
-        cbDot.className = 'status-dot ' + (dep.circuit_breaker_state === 'closed' ? 'green' : dep.circuit_breaker_state === 'half_open' ? 'yellow' : 'red');
-        cbState.textContent = dep.circuit_breaker_state;
-        document.getElementById('circuitState').textContent = dep.circuit_breaker_state.charAt(0).toUpperCase() + dep.circuit_breaker_state.slice(1);
+        document.getElementById('cbDot').className = 'dot ' + (dep.circuit_breaker_state === 'closed' ? 'green' : 'yellow');
+        document.getElementById('cbState').textContent = dep.circuit_breaker_state;
       }
-
-      document.getElementById('regionDot').className = 'status-dot green';
-      document.getElementById('regionText').textContent = data.region;
-      document.getElementById('deployRegion').textContent = data.region;
-      document.getElementById('serviceVersion').textContent = data.version;
-
-      const mins = Math.floor(data.uptime_seconds / 60);
-      const secs = Math.floor(data.uptime_seconds % 60);
-      document.getElementById('uptimeText').textContent = `${mins}m ${secs}s`;
+      document.getElementById('regionText').textContent = d.region;
+      const m = Math.floor(d.uptime_seconds / 60), s = Math.floor(d.uptime_seconds % 60);
+      document.getElementById('uptimeText').textContent = m + 'm ' + s + 's';
     } catch (e) {
-      document.getElementById('healthDot').className = 'status-dot red';
+      document.getElementById('healthDot').className = 'dot red';
       document.getElementById('healthText').textContent = 'Unreachable';
     }
   }
 
-  // ── Fetch Metrics ──
   async function loadMetrics() {
     try {
       const resp = await fetch('/metrics');
       const text = await resp.text();
-
-      let totalReqs = 0;
-      const matches = text.matchAll(/http_requests_total\{[^}]*\}\s+(\d+)/g);
-      for (const m of matches) totalReqs += parseInt(m[1]);
-      document.getElementById('totalReqs').textContent = totalReqs;
-
-      const activeMatch = text.match(/http_active_requests\{[^}]*\}\s+(\d+)/);
-      if (activeMatch) document.getElementById('activeReqs').textContent = activeMatch[1];
-
-      // Simulate latency from histogram
-      const durationMatch = text.match(/http_request_duration_seconds_sum\{[^}]*path="\/api\/products"[^}]*\}\s+([\d.]+)/);
-      const countMatch = text.match(/http_request_duration_seconds_count\{[^}]*path="\/api\/products"[^}]*\}\s+(\d+)/);
-      if (durationMatch && countMatch && parseInt(countMatch[1]) > 0) {
-        const avgMs = (parseFloat(durationMatch[1]) / parseInt(countMatch[1]) * 1000).toFixed(0);
-        document.getElementById('latencySlo').textContent = avgMs + 'ms';
-        const pct = Math.min(100, (500 / Math.max(1, avgMs)) * 85);
-        document.getElementById('latencyBar').style.width = pct + '%';
-      }
-    } catch (e) { /* ignore */ }
+      let total = 0;
+      for (const m of text.matchAll(/http_requests_total\{[^}]*\}\s+(\d+)/g)) total += parseInt(m[1]);
+      document.getElementById('totalReqs').textContent = total;
+      const ds = text.match(/http_request_duration_seconds_sum\{[^}]*path="\/api\/products"[^}]*\}\s+([\d.]+)/);
+      const dc = text.match(/http_request_duration_seconds_count\{[^}]*path="\/api\/products"[^}]*\}\s+(\d+)/);
+      if (ds && dc && parseInt(dc[1]) > 0)
+        document.getElementById('latencySlo').textContent = (parseFloat(ds[1]) / parseInt(dc[1]) * 1000).toFixed(0) + 'ms';
+    } catch (e) {}
   }
 
-  // ── Tab & Category Handlers ──
-  document.querySelectorAll('.tab').forEach(tab => {
+  // Tab handlers
+  document.querySelectorAll('.explore-tab').forEach(tab => {
     tab.addEventListener('click', () => {
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.explore-tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       currentMarketplace = tab.dataset.marketplace;
       renderProducts();
     });
   });
 
-  document.querySelectorAll('.cat-pill').forEach(pill => {
-    pill.addEventListener('click', () => {
-      document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
-      pill.classList.add('active');
-      currentCategory = pill.dataset.category;
+  // Split banner marketplace filter
+  document.querySelectorAll('.split-btn[data-filter]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      currentMarketplace = btn.dataset.filter;
+      document.querySelectorAll('.explore-tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.marketplace === currentMarketplace);
+      });
       renderProducts();
+      document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
     });
   });
 
   document.getElementById('searchInput').addEventListener('input', renderProducts);
 
-  // ── Init ──
+  // Init
   loadProducts();
   loadHealth();
   loadMetrics();
