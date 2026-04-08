@@ -368,110 +368,51 @@
 
     <!-- Main Navigation -->
     <nav class="main-nav">
-      <div class="nav-item">
-        Discover
-        <div class="mega-menu">
-          <a href="#" class="mega-title">Explore</a>
-          <a href="#">Trending Now</a>
-          <a href="#">Fresh Finds</a>
-          <a href="#">Staff Picks</a>
-          <a href="#">Fan Favorites</a>
-          <a href="#">Rising Artists</a>
-        </div>
-      </div>
-      <div class="nav-item">
+      <div class="nav-item" onclick="navFilter('all')">Discover</div>
+      <div class="nav-item" onclick="navFilter('t-shirts')">
         Apparel
-        <div class="mega-menu" style="min-width: 360px;">
-          <div class="mega-cols">
-            <div class="mega-col">
-              <a href="#" class="mega-title">Tops</a>
-              <a href="#">Graphic Tees</a>
-              <a href="#">Premium Hoodies</a>
-              <a href="#">Tank Tops</a>
-              <a href="#">Long Sleeves</a>
-            </div>
-            <div class="mega-col">
-              <a href="#" class="mega-title">More</a>
-              <a href="#">Dresses</a>
-              <a href="#">Leggings</a>
-              <a href="#">Kids Apparel <span class="new-badge">NEW</span></a>
-              <a href="#">Baby Onesies</a>
-            </div>
-          </div>
+        <div class="mega-menu" style="min-width: 280px;">
+          <a onclick="navFilter('t-shirts')" class="mega-title">All Apparel</a>
+          <a onclick="navFilter('t-shirts')">Graphic Tees</a>
+          <a onclick="navFilter('hoodies')">Hoodies & Sweatshirts</a>
         </div>
       </div>
-      <div class="nav-item">
+      <div class="nav-item" onclick="navFilter('stickers')">
         Stickers & Decals
         <div class="mega-menu">
-          <a href="#" class="mega-title">All Stickers</a>
-          <a href="#">Holographic</a>
-          <a href="#">Die-Cut Vinyl</a>
-          <a href="#">Laptop Skins</a>
-          <a href="#">Bumper Stickers</a>
-          <a href="#">Water Bottle</a>
+          <a onclick="navFilter('stickers')" class="mega-title">All Stickers</a>
+          <a onclick="navFilter('stickers')">Holographic</a>
+          <a onclick="navFilter('stickers')">Die-Cut Vinyl</a>
+          <a onclick="navFilter('stickers')">Laptop Skins</a>
         </div>
       </div>
-      <div class="nav-item">
+      <div class="nav-item" onclick="navFilter('wall-art')">
         Wall Art
         <div class="mega-menu">
-          <a href="#" class="mega-title">All Wall Art</a>
-          <a href="#">Canvas Prints</a>
-          <a href="#">Framed Prints</a>
-          <a href="#">Posters</a>
-          <a href="#">Tapestries</a>
-          <a href="#">Metal Prints <span class="new-badge">NEW</span></a>
+          <a onclick="navFilter('wall-art')" class="mega-title">All Wall Art</a>
+          <a onclick="navFilter('wall-art')">Canvas Prints</a>
+          <a onclick="navFilter('wall-art')">Framed Prints</a>
+          <a onclick="navFilter('wall-art')">Posters</a>
         </div>
       </div>
-      <div class="nav-item">
+      <div class="nav-item" onclick="navFilter('mugs')">
         Home & Living
-        <div class="mega-menu" style="min-width: 360px;">
-          <div class="mega-cols">
-            <div class="mega-col">
-              <a href="#" class="mega-title">Kitchen</a>
-              <a href="#">Mugs</a>
-              <a href="#">Coasters</a>
-              <a href="#">Aprons</a>
-            </div>
-            <div class="mega-col">
-              <a href="#" class="mega-title">Bedroom</a>
-              <a href="#">Throw Pillows</a>
-              <a href="#">Duvet Covers</a>
-              <a href="#">Throw Blankets</a>
-            </div>
-          </div>
+        <div class="mega-menu">
+          <a onclick="navFilter('mugs')" class="mega-title">All Home</a>
+          <a onclick="navFilter('mugs')">Mugs</a>
         </div>
       </div>
-      <div class="nav-item">
+      <div class="nav-item" onclick="navFilter('phone-cases')">
         Tech & Cases
         <div class="mega-menu">
-          <a href="#" class="mega-title">All Tech</a>
-          <a href="#">iPhone Cases</a>
-          <a href="#">Samsung Cases</a>
-          <a href="#">Laptop Sleeves</a>
-          <a href="#">Mouse Pads</a>
+          <a onclick="navFilter('phone-cases')" class="mega-title">All Cases</a>
+          <a onclick="navFilter('phone-cases')">iPhone Cases</a>
+          <a onclick="navFilter('phone-cases')">Samsung Cases</a>
         </div>
       </div>
-      <div class="nav-item">
-        Bags & Carry
-        <div class="mega-menu">
-          <a href="#" class="mega-title">All Bags</a>
-          <a href="#">Tote Bags</a>
-          <a href="#">Backpacks</a>
-          <a href="#">Drawstring Bags</a>
-          <a href="#">Pouches</a>
-        </div>
-      </div>
-      <div class="nav-item">
-        Stationery
-        <div class="mega-menu">
-          <a href="#" class="mega-title">All Stationery</a>
-          <a href="#">Notebooks</a>
-          <a href="#">Journals</a>
-          <a href="#">Greeting Cards</a>
-          <a href="#">Postcards</a>
-        </div>
-      </div>
-      <div class="nav-item">Gifts <span class="new-badge">NEW</span></div>
+      <div class="nav-item" onclick="navFilter('bags')">Bags & Carry</div>
+      <div class="nav-item" onclick="navFilter('notebooks')">Stationery</div>
+      <div class="nav-item" onclick="navFilter('all')">Gifts <span class="new-badge">NEW</span></div>
     </nav>
   </div>
 
@@ -718,6 +659,21 @@
       renderProducts();
     });
   });
+
+  // Nav bar click — filter and scroll to products
+  function navFilter(cat) {
+    if (cat === 'all') {
+      clearFilters();
+    } else {
+      currentCategory = cat;
+      currentMarketplace = 'all';
+      document.querySelectorAll('.explore-tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.category === cat);
+      });
+      renderProducts();
+    }
+    document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
+  }
 
   // Category card click (from the grid above)
   function filterByCategory(cat) {
