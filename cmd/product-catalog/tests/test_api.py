@@ -31,10 +31,10 @@ class TestListProducts:
         assert "marketplace" in data[0]
 
     def test_filter_by_marketplace(self, client):
-        resp = client.get("/api/products?marketplace=redbubble")
+        resp = client.get("/api/products?marketplace=inkvault")
         assert resp.status_code == 200
         for product in resp.json():
-            assert product["marketplace"] == "redbubble"
+            assert product["marketplace"] == "inkvault"
 
     def test_filter_by_category(self, client):
         resp = client.get("/api/products?category=stickers")
@@ -63,7 +63,7 @@ class TestGetProduct:
         assert resp.status_code == 200
         data = resp.json()
         assert data["id"] == "prod-001"
-        assert data["title"] == "Cosmic Cat Galaxy Design"
+        assert data["title"] == "Neon Samurai Nightfall"
 
     def test_nonexistent_product_returns_404(self, client):
         resp = client.get("/api/products/prod-999")

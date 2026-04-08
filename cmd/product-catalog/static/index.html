@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Marketplace Reliability Platform</title>
+  <title>InkVault &amp; PrintHive | Marketplace Reliability Platform</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -206,8 +206,8 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-    .product-marketplace.redbubble { background: #e94560; color: #fff; }
-    .product-marketplace.teepublic { background: #2196f3; color: #fff; }
+    .product-marketplace.inkvault { background: #e94560; color: #fff; }
+    .product-marketplace.printhive { background: #6c5ce7; color: #fff; }
 
     .product-info { padding: 14px 16px; }
     .product-title {
@@ -388,13 +388,13 @@
 
   <div class="marketplace-tabs">
     <div class="tab active" data-marketplace="all">All Products</div>
-    <div class="tab" data-marketplace="redbubble">Redbubble</div>
-    <div class="tab" data-marketplace="teepublic">TeePublic</div>
+    <div class="tab" data-marketplace="inkvault">InkVault</div>
+    <div class="tab" data-marketplace="printhive">PrintHive</div>
   </div>
 
   <div class="hero">
-    <h1>Global Artist Marketplace</h1>
-    <p>Independent artists selling designs on products worldwide. This demo showcases the reliability infrastructure behind the platform.</p>
+    <h1>InkVault &amp; PrintHive</h1>
+    <p>Two global marketplaces where independent creators sell original designs on everyday products. This demo showcases the SLO-driven reliability infrastructure powering both platforms.</p>
     <div class="status-bar" id="statusBar">
       <div class="status-item"><span class="status-dot" id="healthDot"></span> <span id="healthText">Checking...</span></div>
       <div class="status-item"><span class="status-dot" id="cbDot"></span> Circuit Breaker: <span id="cbState">...</span></div>
@@ -471,18 +471,20 @@
   </div>
 
   <footer>
-    Marketplace Reliability Platform &mdash;
+    InkVault &amp; PrintHive &mdash; Marketplace Reliability Platform &mdash;
     <a href="https://github.com/tonykhalil88-arch/marketplace-reliability-platform" target="_blank">View on GitHub</a>
-    &mdash; Built for Articore Group (Redbubble / TeePublic)
   </footer>
 
 <script>
   const PRODUCT_COLORS = {
-    'prod-001': { bg: 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)', emoji: '🐱🌌' },
-    'prod-002': { bg: 'linear-gradient(135deg, #f12711, #f5af19)', emoji: '🏔️🌅' },
-    'prod-003': { bg: 'linear-gradient(135deg, #3a1c71, #d76d77, #ffaf7b)', emoji: '☕💻' },
-    'prod-004': { bg: 'linear-gradient(135deg, #a8e063, #56ab2f)', emoji: '🌸🎨' },
-    'prod-005': { bg: 'linear-gradient(135deg, #2c3e50, #4ca1af)', emoji: '🐻📐' },
+    'prod-001': { bg: 'linear-gradient(135deg, #0f0c29, #302b63, #e94560)', emoji: '⚔️🌃' },
+    'prod-002': { bg: 'linear-gradient(135deg, #f5af19, #f12711, #0f3460)', emoji: '🧭🌍' },
+    'prod-003': { bg: 'linear-gradient(135deg, #3a1c71, #d76d77, #ffaf7b)', emoji: '☕😤' },
+    'prod-004': { bg: 'linear-gradient(135deg, #0a3d2e, #56ab2f, #a8e063)', emoji: '🌿📐' },
+    'prod-005': { bg: 'linear-gradient(135deg, #6c5ce7, #a29bfe, #dfe6e9)', emoji: '🦝🎧' },
+    'prod-006': { bg: 'linear-gradient(135deg, #0c3547, #1cb5e0, #56ab2f)', emoji: '🦊🌌' },
+    'prod-007': { bg: 'linear-gradient(135deg, #1a1a2e, #e94560, #16213e)', emoji: '⌨️😵' },
+    'prod-008': { bg: 'linear-gradient(135deg, #f2994a, #f2c94c, #eb5757)', emoji: '🌵🌺' },
   };
 
   let allProducts = [];
