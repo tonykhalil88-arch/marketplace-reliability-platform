@@ -491,31 +491,31 @@
       <a href="#">View all categories &rarr;</a>
     </div>
     <div class="cat-grid">
-      <div class="cat-card">
+      <div class="cat-card" data-category="t-shirts" onclick="filterByCategory('t-shirts', this)">
         <img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&q=80" alt="T-Shirts" loading="lazy">
         <div class="cat-overlay"><span class="cat-label">Graphic Tees</span></div>
       </div>
-      <div class="cat-card">
+      <div class="cat-card" data-category="stickers" onclick="filterByCategory('stickers', this)">
         <img src="https://images.unsplash.com/photo-1572804013427-4d7ca7268217?w=400&q=80" alt="Stickers" loading="lazy">
         <div class="cat-overlay"><span class="cat-label">Stickers</span></div>
       </div>
-      <div class="cat-card">
+      <div class="cat-card" data-category="mugs" onclick="filterByCategory('mugs', this)">
         <img src="https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=400&q=80" alt="Mugs" loading="lazy">
         <div class="cat-overlay"><span class="cat-label">Mugs</span></div>
       </div>
-      <div class="cat-card">
+      <div class="cat-card" data-category="wall-art" onclick="filterByCategory('wall-art', this)">
         <img src="https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?w=400&q=80" alt="Wall Art" loading="lazy">
         <div class="cat-overlay"><span class="cat-label">Wall Art</span></div>
       </div>
-      <div class="cat-card">
+      <div class="cat-card" data-category="phone-cases" onclick="filterByCategory('phone-cases', this)">
         <img src="https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=400&q=80" alt="Phone Cases" loading="lazy">
         <div class="cat-overlay"><span class="cat-label">Phone Cases</span></div>
       </div>
-      <div class="cat-card">
+      <div class="cat-card" data-category="hoodies" onclick="filterByCategory('hoodies', this)">
         <img src="https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=400&q=80" alt="Hoodies" loading="lazy">
         <div class="cat-overlay"><span class="cat-label">Hoodies</span></div>
       </div>
-      <div class="cat-card">
+      <div class="cat-card" data-category="notebooks" onclick="filterByCategory('notebooks', this)">
         <img src="https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=400&q=80" alt="Notebooks" loading="lazy">
         <div class="cat-overlay"><span class="cat-label">Notebooks</span></div>
       </div>
@@ -538,16 +538,25 @@
     </div>
   </div>
 
-  <!-- Trending Products -->
+  <!-- Products -->
   <div class="section" id="products">
     <div class="section-header">
-      <h2>Trending Designs</h2>
-      <a href="/docs" target="_blank">Browse API &rarr;</a>
+      <h2 id="productTitle">All Products</h2>
+      <a href="#" id="clearFilter" style="display:none;" onclick="clearFilters(); return false;">Clear filter &times;</a>
     </div>
     <div class="explore-tabs">
       <div class="explore-tab active" data-marketplace="all">All</div>
       <div class="explore-tab" data-marketplace="inkvault">InkVault</div>
       <div class="explore-tab" data-marketplace="printhive">PrintHive</div>
+      <span style="width:1px;background:#e0e0e0;margin:4px 6px;"></span>
+      <div class="explore-tab" data-category="t-shirts">Tees</div>
+      <div class="explore-tab" data-category="stickers">Stickers</div>
+      <div class="explore-tab" data-category="mugs">Mugs</div>
+      <div class="explore-tab" data-category="wall-art">Wall Art</div>
+      <div class="explore-tab" data-category="phone-cases">Cases</div>
+      <div class="explore-tab" data-category="hoodies">Hoodies</div>
+      <div class="explore-tab" data-category="notebooks">Notebooks</div>
+      <div class="explore-tab" data-category="bags">Bags</div>
     </div>
     <div class="product-grid" id="productGrid">
       <div class="loading"><div class="spinner"></div><br>Loading designs...</div>
@@ -566,20 +575,28 @@
   </footer>
 
 <script>
-  // ─── Product images (Unsplash) mapped to product IDs ──
   const PRODUCT_IMAGES = {
-    'prod-001': 'https://images.unsplash.com/photo-1503341504253-dff4855bf5bb?w=500&q=80',
-    'prod-002': 'https://images.unsplash.com/photo-1501621965386-5ba2a4e79c24?w=500&q=80',
-    'prod-003': 'https://images.unsplash.com/photo-1572119865084-43c285814d63?w=500&q=80',
-    'prod-004': 'https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=500&q=80',
-    'prod-005': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500&q=80',
-    'prod-006': 'https://images.unsplash.com/photo-1507400492013-162706c8c05e?w=500&q=80',
-    'prod-007': 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=500&q=80',
-    'prod-008': 'https://images.unsplash.com/photo-1509587584298-0f3b3a3a1797?w=500&q=80',
+    'prod-001': 'https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?w=500&q=80',  // t-shirt
+    'prod-002': 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=500&q=80',     // t-shirt
+    'prod-003': 'https://images.unsplash.com/photo-1534353473418-4cfa6c56fd38?w=500&q=80',   // sticker compass
+    'prod-004': 'https://images.unsplash.com/photo-1509587584298-0f3b3a3a1797?w=500&q=80',   // sticker cactus
+    'prod-005': 'https://images.unsplash.com/photo-1577937927133-66ef06acdf18?w=500&q=80',   // mug
+    'prod-006': 'https://images.unsplash.com/photo-1615484477778-ca3b77940c25?w=500&q=80',   // mug
+    'prod-007': 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=500&q=80',   // wall art abstract
+    'prod-008': 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=500&q=80',   // wall art neon
+    'prod-009': 'https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=500&q=80',   // phone case
+    'prod-010': 'https://images.unsplash.com/photo-1519327232521-1ea2c736d34d?w=500&q=80',   // phone case marble
+    'prod-011': 'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=500&q=80',   // hoodie
+    'prod-012': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&q=80',   // hoodie mountain
+    'prod-013': 'https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=500&q=80',   // notebook
+    'prod-014': 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=500&q=80',      // notebook grid
+    'prod-015': 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500&q=80',      // tote bag
+    'prod-016': 'https://images.unsplash.com/photo-1581235720704-06d3acfcb36f?w=500&q=80',   // bag colorful
   };
 
   let allProducts = [];
   let currentMarketplace = 'all';
+  let currentCategory = 'all';
 
   async function loadProducts() {
     try {
@@ -596,6 +613,8 @@
     let filtered = allProducts;
     if (currentMarketplace !== 'all')
       filtered = filtered.filter(p => p.marketplace === currentMarketplace);
+    if (currentCategory !== 'all')
+      filtered = filtered.filter(p => p.category === currentCategory);
 
     const search = document.getElementById('searchInput').value.toLowerCase();
     if (search)
@@ -605,9 +624,24 @@
         p.tags.some(t => t.includes(search))
       );
 
+    // Update title
+    const title = document.getElementById('productTitle');
+    const clearBtn = document.getElementById('clearFilter');
+    if (currentCategory !== 'all') {
+      const catNames = {'t-shirts':'Graphic Tees','stickers':'Stickers','mugs':'Mugs','wall-art':'Wall Art','phone-cases':'Phone Cases','hoodies':'Hoodies','notebooks':'Notebooks','bags':'Bags'};
+      title.textContent = catNames[currentCategory] || currentCategory;
+      clearBtn.style.display = 'inline';
+    } else if (currentMarketplace !== 'all') {
+      title.textContent = currentMarketplace.charAt(0).toUpperCase() + currentMarketplace.slice(1) + ' Collection';
+      clearBtn.style.display = 'inline';
+    } else {
+      title.textContent = 'All Products';
+      clearBtn.style.display = 'none';
+    }
+
     const grid = document.getElementById('productGrid');
     if (!filtered.length) {
-      grid.innerHTML = '<div class="loading">No designs found</div>';
+      grid.innerHTML = '<div class="loading">No designs found in this category</div>';
       return;
     }
 
@@ -663,21 +697,56 @@
     document.body.appendChild(modal);
   }
 
-  // Tab handlers
-  document.querySelectorAll('.explore-tab').forEach(tab => {
+  // Marketplace tab handlers
+  document.querySelectorAll('.explore-tab[data-marketplace]').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.explore-tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       currentMarketplace = tab.dataset.marketplace;
+      currentCategory = 'all';
       renderProducts();
     });
   });
+
+  // Category tab handlers
+  document.querySelectorAll('.explore-tab[data-category]').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.explore-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentCategory = tab.dataset.category;
+      currentMarketplace = 'all';
+      renderProducts();
+    });
+  });
+
+  // Category card click (from the grid above)
+  function filterByCategory(cat) {
+    currentCategory = cat;
+    currentMarketplace = 'all';
+    document.querySelectorAll('.explore-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.category === cat);
+    });
+    renderProducts();
+    document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // Clear all filters
+  function clearFilters() {
+    currentMarketplace = 'all';
+    currentCategory = 'all';
+    document.querySelectorAll('.explore-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.marketplace === 'all');
+    });
+    document.getElementById('searchInput').value = '';
+    renderProducts();
+  }
 
   // Split banner marketplace filter
   document.querySelectorAll('.split-btn[data-filter]').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       currentMarketplace = btn.dataset.filter;
+      currentCategory = 'all';
       document.querySelectorAll('.explore-tab').forEach(t => {
         t.classList.toggle('active', t.dataset.marketplace === currentMarketplace);
       });
