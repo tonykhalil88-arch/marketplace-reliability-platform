@@ -174,8 +174,9 @@ async def call_artist_service(artist_id: str) -> dict:
         )
         await asyncio.sleep(max(0, latency) / 1000)
 
-        # 5% failure rate to demonstrate circuit breaker
-        if random.random() < 0.05:
+        # 0.5% failure rate — low enough for demo stability,
+        # high enough to show circuit breaker in action under load testing
+        if random.random() < 0.005:
             raise Exception("artist-service: connection timeout")
 
         return {
@@ -370,6 +371,12 @@ STATIC_DIR = pathlib.Path(__file__).parent / "static"
 async def serve_frontend():
     """Serve the marketplace frontend."""
     return FileResponse(STATIC_DIR / "index.html")
+
+
+@app.get("/dashboard", include_in_schema=False)
+async def serve_dashboard():
+    """Serve the operations reliability dashboard."""
+    return FileResponse(STATIC_DIR / "dashboard.html")
 
 
 # ─── Entrypoint ─────────────────────────────────────────────────────────────

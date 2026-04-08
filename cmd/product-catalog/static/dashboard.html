@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ops Dashboard | InkVault & PrintHive</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #0d1117; color: #e6edf3; min-height: 100vh; }
+    code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* ─── Top Bar ──────────────────────────────────────── */
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 32px; background: #161b22; border-bottom: 1px solid #21262d;
+    }
+    .topbar-logo { font-size: 16px; font-weight: 800; color: #ff6b6b; }
+    .topbar-logo span { color: #6c5ce7; }
+    .topbar-title { font-size: 14px; color: #8b949e; font-weight: 500; }
+    .topbar-links { display: flex; gap: 12px; }
+    .topbar-links a {
+      font-size: 12px; font-weight: 600; color: #8b949e; padding: 6px 14px;
+      border-radius: 6px; border: 1px solid #21262d; transition: all 0.2s;
+    }
+    .topbar-links a:hover { color: #e6edf3; border-color: #444; text-decoration: none; }
+
+    /* ─── Layout ───────────────────────────────────────── */
+    .dashboard { max-width: 1200px; margin: 0 auto; padding: 28px 32px; }
+    .dash-header { margin-bottom: 28px; }
+    .dash-header h1 { font-size: 24px; font-weight: 800; margin-bottom: 4px; }
+    .dash-header p { font-size: 13px; color: #8b949e; }
+
+    /* ─── Status Strip ─────────────────────────────────── */
+    .status-strip {
+      display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;
+    }
+    .status-chip {
+      display: flex; align-items: center; gap: 8px;
+      background: #161b22; border: 1px solid #21262d; border-radius: 10px;
+      padding: 10px 18px; font-size: 13px; font-weight: 500;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .dot.green { background: #3fb950; box-shadow: 0 0 8px rgba(63,185,80,0.4); }
+    .dot.yellow { background: #d29922; box-shadow: 0 0 8px rgba(210,153,34,0.4); }
+    .dot.red { background: #f85149; box-shadow: 0 0 8px rgba(248,81,73,0.4); }
+    .status-label { color: #8b949e; }
+    .status-val { color: #e6edf3; font-weight: 700; }
+
+    /* ─── SLO Cards ────────────────────────────────────── */
+    .slo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .slo-card {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 14px;
+      padding: 24px;
+    }
+    .slo-card h3 {
+      font-size: 11px; color: #8b949e; text-transform: uppercase;
+      letter-spacing: 1px; font-weight: 600; margin-bottom: 12px;
+    }
+    .slo-val { font-size: 40px; font-weight: 900; margin-bottom: 4px; }
+    .slo-val.green { color: #3fb950; }
+    .slo-val.yellow { color: #d29922; }
+    .slo-val.red { color: #f85149; }
+    .slo-target { font-size: 12px; color: #484f58; }
+    .slo-bar { height: 4px; background: #21262d; border-radius: 2px; margin-top: 16px; }
+    .slo-bar-fill { height: 100%; border-radius: 2px; transition: width 1s ease; }
+    .slo-bar-fill.green { background: #3fb950; }
+    .slo-bar-fill.yellow { background: #d29922; }
+
+    /* ─── Panels ───────────────────────────────────────── */
+    .panels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .panel {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 14px;
+      padding: 24px;
+    }
+    .panel h3 {
+      font-size: 13px; font-weight: 700; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .panel h3 .icon { font-size: 16px; }
+
+    /* Dependencies table */
+    .dep-table { width: 100%; font-size: 13px; }
+    .dep-table th {
+      text-align: left; font-size: 10px; text-transform: uppercase;
+      color: #484f58; letter-spacing: 0.5px; padding-bottom: 10px;
+      border-bottom: 1px solid #21262d; font-weight: 600;
+    }
+    .dep-table td { padding: 10px 0; border-bottom: 1px solid #21262d; }
+    .dep-table td:last-child { text-align: right; }
+    .dep-badge {
+      font-size: 11px; font-weight: 700; padding: 3px 10px;
+      border-radius: 6px; display: inline-block;
+    }
+    .dep-badge.closed { background: rgba(63,185,80,0.15); color: #3fb950; }
+    .dep-badge.open { background: rgba(248,81,73,0.15); color: #f85149; }
+    .dep-badge.half_open { background: rgba(210,153,34,0.15); color: #d29922; }
+
+    /* Endpoints table */
+    .ep-table { width: 100%; font-size: 13px; }
+    .ep-table th {
+      text-align: left; font-size: 10px; text-transform: uppercase;
+      color: #484f58; letter-spacing: 0.5px; padding-bottom: 10px;
+      border-bottom: 1px solid #21262d; font-weight: 600;
+    }
+    .ep-table td { padding: 8px 0; border-bottom: 1px solid #21262d; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+    .method { color: #3fb950; font-weight: 700; }
+
+    /* ─── Tech Stack ───────────────────────────────────── */
+    .tech-section { margin-bottom: 28px; }
+    .tech-section h3 { font-size: 13px; font-weight: 700; margin-bottom: 12px; }
+    .tech-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tech-pills span {
+      padding: 6px 14px; border-radius: 8px; font-size: 11px; font-weight: 600;
+      background: #161b22; border: 1px solid #21262d; color: #8b949e;
+    }
+
+    /* ─── Footer ───────────────────────────────────────── */
+    .dash-footer {
+      text-align: center; padding: 20px; font-size: 12px; color: #484f58;
+      border-top: 1px solid #21262d;
+    }
+    .dash-footer a { color: #ff6b6b; }
+
+    @media (max-width: 768px) {
+      .topbar { padding: 12px 16px; }
+      .dashboard { padding: 20px 16px; }
+      .panels { grid-template-columns: 1fr; }
+      .status-strip { gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div>
+      <span class="topbar-logo">InkVault <span>&</span> <span>PrintHive</span></span>
+      <span class="topbar-title">&nbsp;&mdash;&nbsp;Operations Dashboard</span>
+    </div>
+    <div class="topbar-links">
+      <a href="/">Marketplace</a>
+      <a href="/docs" target="_blank">API Docs</a>
+      <a href="/health" target="_blank">Health JSON</a>
+      <a href="/metrics" target="_blank">Prometheus</a>
+      <a href="https://github.com/tonykhalil88-arch/marketplace-reliability-platform" target="_blank">GitHub</a>
+    </div>
+  </div>
+
+  <div class="dashboard">
+    <div class="dash-header">
+      <h1>Platform Reliability Dashboard</h1>
+      <p>Real-time SLO metrics and service health for both marketplaces</p>
+    </div>
+
+    <!-- Status Strip -->
+    <div class="status-strip">
+      <div class="status-chip"><span class="dot" id="healthDot"></span> <span class="status-label">Service:</span> <span class="status-val" id="healthText">Checking...</span></div>
+      <div class="status-chip"><span class="dot" id="cbDot"></span> <span class="status-label">Circuit Breaker:</span> <span class="status-val" id="cbState">...</span></div>
+      <div class="status-chip"><span class="dot green"></span> <span class="status-label">Region:</span> <span class="status-val" id="regionText">...</span></div>
+      <div class="status-chip"><span class="status-label">Version:</span> <span class="status-val" id="versionText">...</span></div>
+      <div class="status-chip"><span class="status-label">Uptime:</span> <span class="status-val" id="uptimeText">...</span></div>
+    </div>
+
+    <!-- SLO Cards -->
+    <div class="slo-grid">
+      <div class="slo-card">
+        <h3>Availability SLO</h3>
+        <div class="slo-val green" id="availSlo">99.9%</div>
+        <div class="slo-target">Target: 99.9% over 30-day window</div>
+        <div class="slo-bar"><div class="slo-bar-fill green" style="width: 100%"></div></div>
+      </div>
+      <div class="slo-card">
+        <h3>Latency P99</h3>
+        <div class="slo-val green" id="latencySlo">--ms</div>
+        <div class="slo-target">Target: &lt;500ms (US) / &lt;700ms (AU)</div>
+        <div class="slo-bar"><div class="slo-bar-fill green" id="latencyBar" style="width: 85%"></div></div>
+      </div>
+      <div class="slo-card">
+        <h3>Error Budget Remaining</h3>
+        <div class="slo-val green">43.2 min</div>
+        <div class="slo-target">Monthly budget at 99.9% target</div>
+        <div class="slo-bar"><div class="slo-bar-fill green" style="width: 100%"></div></div>
+      </div>
+      <div class="slo-card">
+        <h3>Total Requests Served</h3>
+        <div class="slo-val green" id="totalReqs">0</div>
+        <div class="slo-target">Since last service restart</div>
+        <div class="slo-bar"><div class="slo-bar-fill green" style="width: 30%"></div></div>
+      </div>
+    </div>
+
+    <!-- Panels -->
+    <div class="panels">
+      <div class="panel">
+        <h3><span class="icon">&#9889;</span> Dependencies</h3>
+        <table class="dep-table">
+          <thead><tr><th>Service</th><th>Status</th><th>Latency</th><th>Breaker</th></tr></thead>
+          <tbody id="depBody">
+            <tr><td colspan="4" style="color:#484f58;">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <h3><span class="icon">&#128640;</span> API Endpoints</h3>
+        <table class="ep-table">
+          <thead><tr><th>Method</th><th>Path</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><span class="method">GET</span></td><td>/api/products</td><td style="color:#8b949e">List catalog</td></tr>
+            <tr><td><span class="method">GET</span></td><td>/api/products/:id</td><td style="color:#8b949e">Product detail</td></tr>
+            <tr><td><span class="method">GET</span></td><td>/health</td><td style="color:#8b949e">Health check</td></tr>
+            <tr><td><span class="method">GET</span></td><td>/metrics</td><td style="color:#8b949e">Prometheus metrics</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tech Stack -->
+    <div class="tech-section">
+      <h3>Infrastructure Stack</h3>
+      <div class="tech-pills">
+        <span>Kubernetes</span><span>AWS ECS Fargate</span><span>Terraform</span><span>Helm</span>
+        <span>Datadog</span><span>Buildkite</span><span>GitHub Actions</span><span>Cloudflare</span>
+        <span>Docker</span><span>FastAPI</span><span>Prometheus</span><span>Circuit Breaker</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="dash-footer">
+    InkVault & PrintHive &mdash; Marketplace Reliability Platform &mdash;
+    <a href="https://github.com/tonykhalil88-arch/marketplace-reliability-platform" target="_blank">View on GitHub</a>
+  </div>
+
+<script>
+  async function loadHealth() {
+    try {
+      const resp = await fetch('/health');
+      const d = await resp.json();
+
+      document.getElementById('healthDot').className = 'dot ' + (d.status === 'healthy' ? 'green' : d.status === 'degraded' ? 'yellow' : 'red');
+      document.getElementById('healthText').textContent = d.status.charAt(0).toUpperCase() + d.status.slice(1);
+      document.getElementById('regionText').textContent = d.region;
+      document.getElementById('versionText').textContent = d.version;
+
+      const m = Math.floor(d.uptime_seconds / 60), s = Math.floor(d.uptime_seconds % 60);
+      document.getElementById('uptimeText').textContent = m + 'm ' + s + 's';
+
+      // Dependencies
+      const tbody = document.getElementById('depBody');
+      tbody.innerHTML = d.dependencies.map(dep => {
+        const stateClass = dep.circuit_breaker_state || 'closed';
+        return `<tr>
+          <td style="font-weight:600;">${dep.name}</td>
+          <td><span class="dep-badge ${dep.status === 'healthy' ? 'closed' : 'open'}">${dep.status}</span></td>
+          <td style="font-family:'JetBrains Mono',monospace;font-size:12px;">${dep.latency_ms}ms</td>
+          <td style="text-align:right;"><span class="dep-badge ${stateClass}">${stateClass}</span></td>
+        </tr>`;
+      }).join('');
+
+      // Circuit breaker status
+      const dep = d.dependencies.find(x => x.name === 'artist-service');
+      if (dep) {
+        document.getElementById('cbDot').className = 'dot ' + (dep.circuit_breaker_state === 'closed' ? 'green' : dep.circuit_breaker_state === 'half_open' ? 'yellow' : 'red');
+        document.getElementById('cbState').textContent = dep.circuit_breaker_state;
+      }
+    } catch (e) {
+      document.getElementById('healthDot').className = 'dot red';
+      document.getElementById('healthText').textContent = 'Unreachable';
+    }
+  }
+
+  async function loadMetrics() {
+    try {
+      const resp = await fetch('/metrics');
+      const text = await resp.text();
+
+      let total = 0;
+      for (const m of text.matchAll(/http_requests_total\{[^}]*\}\s+(\d+)/g)) total += parseInt(m[1]);
+      document.getElementById('totalReqs').textContent = total.toLocaleString();
+
+      const ds = text.match(/http_request_duration_seconds_sum\{[^}]*path="\/api\/products"[^}]*\}\s+([\d.]+)/);
+      const dc = text.match(/http_request_duration_seconds_count\{[^}]*path="\/api\/products"[^}]*\}\s+(\d+)/);
+      if (ds && dc && parseInt(dc[1]) > 0) {
+        const avgMs = (parseFloat(ds[1]) / parseInt(dc[1]) * 1000).toFixed(0);
+        document.getElementById('latencySlo').textContent = avgMs + 'ms';
+        const pct = Math.min(100, Math.max(10, (500 / Math.max(1, avgMs)) * 85));
+        document.getElementById('latencyBar').style.width = pct + '%';
+      }
+    } catch (e) {}
+  }
+
+  loadHealth();
+  loadMetrics();
+  setInterval(loadHealth, 5000);
+  setInterval(loadMetrics, 5000);
+</script>
+</body>
+</html>
