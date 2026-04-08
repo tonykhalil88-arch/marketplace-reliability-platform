@@ -363,6 +363,12 @@ async def serve_dashboard():
     return FileResponse(STATIC_DIR / "dashboard.html")
 
 
+@app.get("/infrastructure", include_in_schema=False)
+async def serve_infrastructure():
+    """Serve the infrastructure code walkthrough."""
+    return FileResponse(STATIC_DIR / "infrastructure.html")
+
+
 # ─── Entrypoint ─────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":

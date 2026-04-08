@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Infrastructure | InkVault & PrintHive</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #0d1117; color: #e6edf3; }
+    code, pre, .mono { font-family: 'JetBrains Mono', monospace; }
+
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 32px; background: #161b22; border-bottom: 1px solid #21262d;
+    }
+    .topbar-logo { font-size: 16px; font-weight: 800; color: #ff6b6b; }
+    .topbar-logo span { color: #6c5ce7; }
+    .topbar-links { display: flex; gap: 10px; }
+    .topbar-links a {
+      font-size: 12px; font-weight: 600; color: #8b949e; padding: 6px 14px;
+      border-radius: 6px; border: 1px solid #21262d; transition: all 0.2s; text-decoration: none;
+    }
+    .topbar-links a:hover { color: #e6edf3; border-color: #444; }
+
+    .page { max-width: 1100px; margin: 0 auto; padding: 32px; }
+
+    .page-header { margin-bottom: 32px; }
+    .page-header h1 { font-size: 28px; font-weight: 900; margin-bottom: 6px; }
+    .page-header p { font-size: 14px; color: #8b949e; line-height: 1.5; }
+
+    /* ─── Architecture Diagram ─────────────────────────── */
+    .arch-box {
+      background: #161b22; border: 1px solid #21262d; border-radius: 12px;
+      padding: 24px; margin-bottom: 32px; overflow-x: auto;
+    }
+    .arch-box pre {
+      font-size: 12px; line-height: 1.6; color: #8b949e;
+    }
+    .arch-box h3 { font-size: 14px; font-weight: 700; margin-bottom: 16px; color: #e6edf3; }
+
+    /* ─── Side Nav + Content ───────────────────────────── */
+    .layout { display: flex; gap: 28px; }
+
+    .side-nav {
+      width: 220px; flex-shrink: 0; position: sticky; top: 80px; align-self: flex-start;
+    }
+    .side-nav a {
+      display: block; padding: 8px 14px; font-size: 13px; font-weight: 500;
+      color: #8b949e; border-left: 2px solid transparent; text-decoration: none;
+      transition: all 0.15s; border-radius: 0 6px 6px 0;
+    }
+    .side-nav a:hover { color: #e6edf3; background: rgba(255,255,255,0.03); }
+    .side-nav a.active { color: #ff6b6b; border-left-color: #ff6b6b; background: rgba(255,107,107,0.05); }
+    .side-nav .nav-group {
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+      color: #484f58; padding: 16px 14px 6px; margin-top: 8px;
+    }
+    .side-nav .nav-group:first-child { margin-top: 0; padding-top: 0; }
+
+    .content { flex: 1; min-width: 0; }
+
+    /* ─── Code Blocks ──────────────────────────────────── */
+    .file-block { margin-bottom: 28px; }
+    .file-header {
+      display: flex; align-items: center; justify-content: space-between;
+      background: #1c2129; border: 1px solid #21262d; border-bottom: none;
+      border-radius: 10px 10px 0 0; padding: 10px 16px;
+    }
+    .file-path {
+      font-size: 12px; font-weight: 600; color: #8b949e;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .file-badge {
+      font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 6px;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .file-badge.tf { background: rgba(99,71,217,0.15); color: #a78bfa; }
+    .file-badge.yaml { background: rgba(59,130,246,0.15); color: #60a5fa; }
+    .file-badge.sh { background: rgba(34,197,94,0.15); color: #4ade80; }
+    .file-badge.md { background: rgba(251,191,36,0.15); color: #fbbf24; }
+
+    .code-box {
+      background: #0d1117; border: 1px solid #21262d; border-radius: 0 0 10px 10px;
+      padding: 16px 20px; overflow-x: auto; max-height: 500px; overflow-y: auto;
+    }
+    .code-box pre {
+      font-size: 12.5px; line-height: 1.65; color: #c9d1d9; white-space: pre; margin: 0;
+    }
+
+    /* ─── Annotations ──────────────────────────────────── */
+    .annotation {
+      background: #161b22; border: 1px solid #21262d; border-radius: 10px;
+      padding: 16px 20px; margin-bottom: 28px; font-size: 13px; line-height: 1.6; color: #8b949e;
+    }
+    .annotation strong { color: #e6edf3; }
+    .annotation code { background: #21262d; padding: 2px 6px; border-radius: 4px; font-size: 12px; color: #ff6b6b; }
+
+    .section-divider {
+      border: none; border-top: 1px solid #21262d; margin: 40px 0;
+    }
+
+    h2.section-title {
+      font-size: 20px; font-weight: 800; margin-bottom: 8px;
+      padding-top: 8px;
+    }
+    .section-sub { font-size: 13px; color: #8b949e; margin-bottom: 20px; }
+
+    .footer {
+      text-align: center; padding: 24px; font-size: 12px; color: #484f58;
+      border-top: 1px solid #21262d; margin-top: 40px;
+    }
+    .footer a { color: #ff6b6b; text-decoration: none; }
+
+    @media (max-width: 768px) {
+      .layout { flex-direction: column; }
+      .side-nav { width: 100%; position: static; display: flex; overflow-x: auto; gap: 0; }
+      .side-nav a { white-space: nowrap; border-left: none; border-bottom: 2px solid transparent; }
+      .side-nav a.active { border-bottom-color: #ff6b6b; border-left: none; }
+      .side-nav .nav-group { display: none; }
+      .page { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div>
+      <span class="topbar-logo">InkVault <span>&</span> <span>PrintHive</span></span>
+      <span style="color:#484f58;font-size:14px;"> &mdash; Infrastructure as Code</span>
+    </div>
+    <div class="topbar-links">
+      <a href="/">Marketplace</a>
+      <a href="/dashboard">Ops Dashboard</a>
+      <a href="/docs" target="_blank">API Docs</a>
+      <a href="https://github.com/tonykhalil88-arch/marketplace-reliability-platform" target="_blank">GitHub</a>
+    </div>
+  </div>
+
+  <div class="page">
+    <div class="page-header">
+      <h1>Infrastructure & Reliability</h1>
+      <p>Production-grade infrastructure code powering InkVault & PrintHive. Everything below is version-controlled, peer-reviewed, and deployed through CI/CD.</p>
+    </div>
+
+    <!-- Architecture -->
+    <div class="arch-box">
+      <h3>System Architecture</h3>
+      <pre>
+  Buyers ──▶ Cloudflare (WAF / Geo-routing / Edge Cache)
+                    │
+         ┌──────────┴──────────┐
+         ▼                     ▼
+   US (us-east-1)        AU (ap-southeast-2)
+   ┌──────────────┐      ┌──────────────┐
+   │  ALB/Ingress │      │  ALB/Ingress │
+   │      │       │      │      │       │
+   │  K8s / ECS   │      │  K8s / ECS   │
+   │  ┌────────┐  │      │  ┌────────┐  │
+   │  │Product │  │      │  │Product │  │
+   │  │Catalog │  │      │  │Catalog │  │
+   │  │(3-20)  │  │      │  │(2-10)  │  │
+   │  └───┬────┘  │      │  └───┬────┘  │
+   │      │       │      │      │       │
+   │  Circuit     │      │  Circuit     │
+   │  Breaker     │      │  Breaker     │
+   │      │       │      │  (45s timeout│
+   │  Artist Svc  │◀─────│   vs 30s US) │
+   └──────────────┘      └──────────────┘
+              │
+         Datadog (SLOs / Burn-Rate Alerts / Logs)</pre>
+    </div>
+
+    <div class="layout">
+      <!-- Side Navigation -->
+      <nav class="side-nav">
+        <div class="nav-group">Monitoring</div>
+        <a href="#datadog-slos" class="active">Datadog SLOs</a>
+        <a href="#burn-rate">Burn-Rate Alerts</a>
+        <a href="#error-budget">Error Budget Policy</a>
+        <div class="nav-group">Kubernetes</div>
+        <a href="#helm-deploy">Deployment</a>
+        <a href="#helm-hpa">Autoscaling (HPA)</a>
+        <a href="#helm-values-au">AU Region Values</a>
+        <div class="nav-group">CI/CD</div>
+        <a href="#buildkite">Buildkite Pipeline</a>
+        <a href="#canary">Canary Analysis</a>
+        <a href="#github-actions">GitHub Actions</a>
+        <div class="nav-group">AWS</div>
+        <a href="#ecs">ECS Fargate</a>
+        <a href="#cloudflare">Cloudflare</a>
+      </nav>
+
+      <!-- Content -->
+      <div class="content">
+
+        <!-- ═══ DATADOG SLOs ═══ -->
+        <h2 class="section-title" id="datadog-slos">Datadog SLOs as Terraform</h2>
+        <p class="section-sub">SLOs defined as code — version-controlled, peer-reviewed, deployed through CI/CD. Not click-ops.</p>
+
+        <div class="annotation">
+          <strong>Why this matters:</strong> The availability SLO tracks <code>99.9%</code> of requests returning non-5xx over 30 days.
+          That gives us a <code>43.2 minute</code> error budget per month. The latency SLO ensures p99 stays under <code>500ms</code> —
+          because every 100ms of added latency costs roughly 1% of marketplace conversion.
+        </div>
+
+        <div class="file-block">
+          <div class="file-header">
+            <span class="file-path">terraform/modules/datadog-monitors/main.tf</span>
+            <span class="file-badge tf">Terraform</span>
+          </div>
+          <div class="code-box"><pre id="code-datadog-slos">Loading...</pre></div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- ═══ BURN RATE ═══ -->
+        <h2 class="section-title" id="burn-rate">Multi-Window Burn-Rate Alerts</h2>
+        <p class="section-sub">Instead of alerting on raw error rates, we alert when the error budget is being consumed too fast.</p>
+
+        <div class="annotation">
+          <strong>Two alert tiers:</strong> P1 pages when the 1-hour burn rate hits <code>14.4x</code> (budget gone in ~2 hours).
+          P3 creates a ticket at <code>6x</code> (budget gone in ~5 days). This avoids noisy alerts from brief spikes
+          while catching sustained degradation early. Based on the Google SRE multi-window approach.
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- ═══ ERROR BUDGET ═══ -->
+        <h2 class="section-title" id="error-budget">Error Budget Policy</h2>
+        <p class="section-sub">A shared agreement between platform and product teams about when to prioritize reliability vs. velocity.</p>
+
+        <div class="file-block">
+          <div class="file-header">
+            <span class="file-path">slo/error-budget-policy.md</span>
+            <span class="file-badge md">Policy</span>
+          </div>
+          <div class="code-box"><pre id="code-error-budget">Loading...</pre></div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- ═══ HELM DEPLOYMENT ═══ -->
+        <h2 class="section-title" id="helm-deploy">Kubernetes Deployment</h2>
+        <p class="section-sub">Helm-managed deployment with Datadog autodiscovery, pod anti-affinity, rolling updates, and graceful shutdown.</p>
+
+        <div class="annotation">
+          <strong>Key patterns:</strong> <code>maxUnavailable: 0</code> ensures zero-downtime deploys.
+          Pod anti-affinity spreads across both nodes and AZs. The <code>preStop</code> hook sleeps 5s before SIGTERM
+          so the load balancer deregisters the pod first — no dropped connections.
+          Datadog annotations enable automatic metric scraping and structured log collection.
+        </div>
+
+        <div class="file-block">
+          <div class="file-header">
+            <span class="file-path">helm-chart/templates/deployment.yaml</span>
+            <span class="file-badge yaml">Helm</span>
+          </div>
+          <div class="code-box"><pre id="code-helm-deploy">Loading...</pre></div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- ═══ HPA ═══ -->
+        <h2 class="section-title" id="helm-hpa">Autoscaling (HPA)</h2>
+        <p class="section-sub">Scales on both CPU utilization and custom p99 latency metric from Datadog.</p>
+
+        <div class="annotation">
+          <strong>Why custom metrics:</strong> CPU-only autoscaling misses I/O-bound latency issues.
+          We scale up when p99 hits <code>400ms</code> (80% of the 500ms SLO) to get ahead of breaches.
+          Scale-down has a <code>5 minute</code> cooldown to prevent flapping.
+        </div>
+
+        <div class="file-block">
+          <div class="file-header">
+            <span class="file-path">helm-chart/templates/hpa.yaml</span>
+            <span class="file-badge yaml">Helm</span>
+          </div>
+          <div class="code-box"><pre id="code-hpa">Loading...</pre></div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- ═══ AU VALUES ═══ -->
+        <h2 class="section-title" id="helm-values-au">AU Region Configuration</h2>
+        <p class="section-sub">Melbourne (ap-southeast-2) has different tuning than US due to cross-region latency.</p>
+
+        <div class="annotation">
+          <strong>Why different values:</strong> Cross-region calls to US-hosted services add ~150ms of latency.
+          So the circuit breaker timeout is <code>45s</code> (vs 30s US), failure threshold is <code>7</code> (vs 5),
+          and the HPA latency target is <code>600ms</code> (vs 400ms). Scale-down cooldown is <code>10 minutes</code>
+          to avoid scaling down before the AU morning traffic ramp.
+        </div>
+
+        <div class="file-block">
+          <div class="file-header">
+            <span class="file-path">helm-chart/values-au.yaml</span>
+            <span class="file-badge yaml">Helm</span>
+          </div>
+          <div class="code-box"><pre id="code-values-au">Loading...</pre></div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- ═══ BUILDKITE ═══ -->
+        <h2 class="section-title" id="buildkite">Buildkite Deploy Pipeline</h2>
+        <p class="section-sub">Build, test, canary, rollout — with manual gate before production and sequential US-then-AU deployment.</p>
+
+        <div class="annotation">
+          <strong>Pipeline design:</strong> Buildkite handles deploys (not GitHub Actions) because it supports
+          <code>concurrency_group</code> to prevent simultaneous deploys, <code>block</code> steps for manual approval,
+          and agent queues for environment isolation. The canary stage routes 10% of traffic to the new version
+          and queries Datadog for 5 minutes before proceeding.
+        </div>
+
+        <div class="file-block">
+          <div class="file-header">
+            <span class="file-path">.buildkite/pipeline.yml</span>
+            <span class="file-badge yaml">Buildkite</span>
+          </div>
+          <div class="code-box"><pre id="code-buildkite">Loading...</pre></div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- ═══ CANARY ═══ -->
+        <h2 class="section-title" id="canary">Canary Analysis Script</h2>
+        <p class="section-sub">Automated canary verification — queries Datadog every 30 seconds, auto-rollback on 3 consecutive failures.</p>
+
+        <div class="file-block">
+          <div class="file-header">
+            <span class="file-path">.buildkite/scripts/canary-analysis.sh</span>
+            <span class="file-badge sh">Shell</span>
+          </div>
+          <div class="code-box"><pre id="code-canary">Loading...</pre></div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- ═══ GITHUB ACTIONS ═══ -->
+        <h2 class="section-title" id="github-actions">GitHub Actions (PR Validation)</h2>
+        <p class="section-sub">Runs on every PR: tests, Helm lint, Terraform validate, security scans, Docker build.</p>
+
+        <div class="annotation">
+          <strong>Split CI strategy:</strong> GitHub Actions handles PR validation (fast feedback for developers).
+          Buildkite handles deploys (production access, manual gates). This split means product engineers
+          get CI feedback without needing Buildkite access.
+        </div>
+
+        <div class="file-block">
+          <div class="file-header">
+            <span class="file-path">.github/workflows/pr-checks.yml</span>
+            <span class="file-badge yaml">GitHub Actions</span>
+          </div>
+          <div class="code-box"><pre id="code-gh-actions">Loading...</pre></div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- ═══ ECS ═══ -->
+        <h2 class="section-title" id="ecs">ECS Fargate Service</h2>
+        <p class="section-sub">Serverless container compute — runs alongside Kubernetes to demonstrate fluency with both.</p>
+
+        <div class="annotation">
+          <strong>Why both K8s and ECS:</strong> The role requires experience with both.
+          The ECS module includes Fargate task definitions, ALB target groups with health checks,
+          application autoscaling on CPU + request count, and a deployment circuit breaker
+          that auto-rolls back if new tasks fail to stabilize.
+        </div>
+
+        <div class="file-block">
+          <div class="file-header">
+            <span class="file-path">terraform/modules/ecs-service/main.tf</span>
+            <span class="file-badge tf">Terraform</span>
+          </div>
+          <div class="code-box"><pre id="code-ecs">Loading...</pre></div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- ═══ CLOUDFLARE ═══ -->
+        <h2 class="section-title" id="cloudflare">Cloudflare Geo-Routing & WAF</h2>
+        <p class="section-sub">Traffic routing, health checks, failover, WAF rules, and edge caching — all as Terraform.</p>
+
+        <div class="annotation">
+          <strong>Geo steering:</strong> Americas and Europe route to US. Asia-Pacific and Oceania route to AU.
+          If one region fails health checks, all traffic fails over to the healthy region automatically.
+          WAF rules rate-limit product API scraping and challenge empty user-agent requests.
+          Edge caching gives product listings a 60-second TTL to absorb traffic spikes.
+        </div>
+
+        <div class="file-block">
+          <div class="file-header">
+            <span class="file-path">terraform/modules/cloudflare-dns/main.tf</span>
+            <span class="file-badge tf">Terraform</span>
+          </div>
+          <div class="code-box"><pre id="code-cloudflare">Loading...</pre></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    InkVault & PrintHive &mdash; Marketplace Reliability Platform &mdash;
+    <a href="https://github.com/tonykhalil88-arch/marketplace-reliability-platform" target="_blank">View on GitHub</a>
+  </div>
+
+<script>
+  // Fetch raw files from GitHub and display them
+  const FILES = {
+    'code-datadog-slos': 'terraform/modules/datadog-monitors/main.tf',
+    'code-error-budget': 'slo/error-budget-policy.md',
+    'code-helm-deploy': 'helm-chart/templates/deployment.yaml',
+    'code-hpa': 'helm-chart/templates/hpa.yaml',
+    'code-values-au': 'helm-chart/values-au.yaml',
+    'code-buildkite': '.buildkite/pipeline.yml',
+    'code-canary': '.buildkite/scripts/canary-analysis.sh',
+    'code-gh-actions': '.github/workflows/pr-checks.yml',
+    'code-ecs': 'terraform/modules/ecs-service/main.tf',
+    'code-cloudflare': 'terraform/modules/cloudflare-dns/main.tf',
+  };
+
+  const REPO = 'tonykhalil88-arch/marketplace-reliability-platform';
+
+  async function loadFiles() {
+    for (const [elemId, path] of Object.entries(FILES)) {
+      try {
+        const resp = await fetch(`https://raw.githubusercontent.com/${REPO}/master/${path}`);
+        const text = await resp.text();
+        const el = document.getElementById(elemId);
+        el.textContent = text;
+      } catch (e) {
+        document.getElementById(elemId).textContent = `Failed to load ${path}`;
+      }
+    }
+  }
+
+  // Side nav active state on scroll
+  const sections = document.querySelectorAll('h2[id]');
+  const navLinks = document.querySelectorAll('.side-nav a');
+
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 100) current = s.id;
+    });
+    navLinks.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+  });
+
+  loadFiles();
+</script>
+</body>
+</html>
