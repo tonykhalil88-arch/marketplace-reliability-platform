@@ -1,0 +1,48 @@
+# ─── US Region (New York / us-east-1) ────────────────────────────────────────
+# Primary region — handles majority of Redbubble/TeePublic traffic from
+# North America and Europe. Higher replica counts and tighter latency targets.
+
+config:
+  region: "us-east-1"
+  # Tighter circuit breaker for US region — lower baseline network latency
+  # means failures should be detected faster
+  circuitBreaker:
+    failureThreshold: 5
+    recoveryTimeoutSeconds: 30
+    halfOpenMaxCalls: 3
+
+autoscaling:
+  minReplicas: 3
+  maxReplicas: 20
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Pods
+      pods:
+        metric:
+          name: http_request_duration_seconds_p99
+        target:
+          # US target: 400ms trigger (SLO is 500ms)
+          averageValue: "400m"
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+        - type: Pods
+          value: 4  # More aggressive scale-up for US traffic spikes
+          periodSeconds: 60
+
+ingress:
+  hosts:
+    - host: catalog-us.marketplace.com
+      paths:
+        - path: /
+          pathType: Prefix
+
+# Schedule pods on US-region nodes
+nodeSelector:
+  topology.kubernetes.io/region: us-east-1

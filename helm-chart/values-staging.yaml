@@ -1,0 +1,36 @@
+# ─── Staging Environment Overrides ───────────────────────────────────────────
+# Lower resource footprint, relaxed SLO thresholds for testing.
+# Staging runs in us-east-1 only (no multi-region).
+
+replicaCount: 1
+
+image:
+  pullPolicy: Always  # Always pull latest in staging for faster iteration
+
+config:
+  environment: "staging"
+  region: "us-east-1"
+  logLevel: "debug"  # Verbose logging for debugging in staging
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 250m
+    memory: 128Mi
+
+autoscaling:
+  enabled: false  # Fixed replica count in staging to save cost
+
+podDisruptionBudget:
+  enabled: false  # Not needed with single replica
+
+ingress:
+  annotations:
+    cloudflare.com/proxied: "false"  # Direct access in staging
+  hosts:
+    - host: catalog.staging.marketplace.internal
+      paths:
+        - path: /
+          pathType: Prefix

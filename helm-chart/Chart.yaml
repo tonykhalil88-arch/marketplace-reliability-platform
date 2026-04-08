@@ -1,0 +1,15 @@
+apiVersion: v2
+name: product-catalog
+description: >
+  Marketplace product catalog microservice with SLO-driven reliability.
+  Supports multi-region deployment across US (New York) and AU (Melbourne).
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+keywords:
+  - marketplace
+  - catalog
+  - microservice
+maintainers:
+  - name: Platform Engineering
+    email: platform@articore.com

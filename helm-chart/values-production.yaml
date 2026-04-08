@@ -1,0 +1,37 @@
+# ─── Production Environment Overrides ────────────────────────────────────────
+# High availability defaults for production. Region-specific tuning
+# (replica counts, latency thresholds) are in values-us.yaml / values-au.yaml.
+
+config:
+  environment: "production"
+  logLevel: "info"
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 256Mi
+  limits:
+    cpu: "1"
+    memory: 512Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 3  # Higher floor in production for burst capacity
+  maxReplicas: 20
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: "50%"
+
+ingress:
+  annotations:
+    cloudflare.com/proxied: "true"
+    # Cloudflare WAF rules for production
+    nginx.ingress.kubernetes.io/rate-limit: "500"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    # Enable gzip for product JSON payloads
+    nginx.ingress.kubernetes.io/enable-gzip: "true"
+  tls:
+    - secretName: marketplace-tls
+      hosts:
+        - catalog.marketplace.com

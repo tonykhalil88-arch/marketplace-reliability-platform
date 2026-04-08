@@ -1,0 +1,241 @@
+# ─── Buildkite Deploy Pipeline ───────────────────────────────────────────────
+# Handles the build → test → deploy lifecycle for the product catalog service.
+#
+# Pipeline design mirrors Articore's dual-CI approach:
+#   - Buildkite: builds, deploys, and production operations
+#   - GitHub Actions: PR validation (lint, security scan, terraform check)
+#
+# Key reliability patterns:
+#   - Concurrency groups prevent simultaneous deploys to the same environment
+#   - Automatic retries for transient infrastructure failures
+#   - Manual gate before production (block step)
+#   - Canary deploy to production before full rollout
+#   - Automatic rollback on deploy failure
+
+steps:
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # Stage 1: Test & Build (parallel)
+  # ════════════════════════════════════════════════════════════════════════════
+
+  - group: ":test_tube: Test & Lint"
+    steps:
+      - label: ":python: Unit Tests"
+        command: |
+          pip install -r requirements.txt
+          cd cmd/product-catalog
+          python -m pytest tests/ -v --tb=short --junitxml=../../test-results/unit.xml
+        artifact_paths:
+          - "test-results/*.xml"
+        plugins:
+          - docker#v5.11.0:
+              image: "python:3.13-slim"
+              propagate-environment: true
+        retry:
+          automatic:
+            - exit_status: -1   # Agent lost / infra flake
+              limit: 2
+            - exit_status: 255  # SSH timeout
+              limit: 1
+
+      - label: ":shield: Security Scan"
+        command: |
+          trivy fs --severity HIGH,CRITICAL --exit-code 1 .
+          trivy config --severity HIGH,CRITICAL --exit-code 1 .
+        plugins:
+          - docker#v5.11.0:
+              image: "aquasec/trivy:latest"
+              entrypoint: ""
+        soft_fail:
+          - exit_status: 1  # Don't block on security findings, but make visible
+
+  - wait: ~
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # Stage 2: Docker Build & Push
+  # ════════════════════════════════════════════════════════════════════════════
+
+  - group: ":docker: Build & Push"
+    steps:
+      - label: ":docker: Build Image"
+        commands:
+          - make docker-build IMAGE_TAG=$BUILDKITE_COMMIT
+          - make docker-push IMAGE_TAG=$BUILDKITE_COMMIT
+        plugins:
+          - ecr#v2.9.0:
+              login: true
+              region: us-east-1
+          # Also push to AU ECR for multi-region deploys
+          - ecr#v2.9.0:
+              login: true
+              region: ap-southeast-2
+        agents:
+          queue: "build-large"  # Needs more CPU/memory for Docker build
+        retry:
+          automatic:
+            - exit_status: -1
+              limit: 2
+
+  - wait: ~
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # Stage 3: Deploy Staging
+  # ════════════════════════════════════════════════════════════════════════════
+
+  - label: ":kubernetes: Deploy Staging"
+    command: ".buildkite/scripts/deploy.sh"
+    env:
+      DEPLOY_ENV: staging
+      DEPLOY_REGION: us-east-1
+      IMAGE_TAG: "$BUILDKITE_COMMIT"
+      HELM_VALUES: "values-staging.yaml"
+      NAMESPACE: staging
+    concurrency: 1
+    concurrency_group: "deploy/staging/product-catalog"
+    agents:
+      queue: "deploy"
+    retry:
+      automatic:
+        - exit_status: -1
+          limit: 1
+
+  - label: ":stethoscope: Staging Smoke Tests"
+    command: ".buildkite/scripts/smoke-test.sh"
+    env:
+      TARGET_URL: "https://catalog-staging.marketplace.com"
+      EXPECTED_VERSION: "$BUILDKITE_COMMIT"
+    depends_on: "deploy-staging"
+    retry:
+      automatic:
+        - exit_status: 1
+          limit: 2  # Retry smoke tests — staging can be flaky
+
+  - wait: ~
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # Stage 4: Production Gate
+  # ════════════════════════════════════════════════════════════════════════════
+
+  - block: ":rocket: Deploy to Production?"
+    branches: "main"
+    prompt: |
+      Ready to deploy commit ${BUILDKITE_COMMIT} to production?
+
+      Pre-deploy checklist:
+      - [ ] Staging smoke tests passed
+      - [ ] No active incidents on status page
+      - [ ] Error budget > 20% (check Datadog SLO dashboard)
+      - [ ] Not during change freeze window
+      - [ ] On-call engineer aware of deploy
+    fields:
+      - select: "Deploy Strategy"
+        key: "deploy-strategy"
+        default: "canary"
+        options:
+          - label: "Canary (recommended)"
+            value: "canary"
+          - label: "Rolling Update"
+            value: "rolling"
+      - select: "Deploy Region"
+        key: "deploy-region"
+        default: "us-first"
+        options:
+          - label: "US first, then AU (recommended)"
+            value: "us-first"
+          - label: "AU first, then US"
+            value: "au-first"
+          - label: "Both regions simultaneously"
+            value: "both"
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # Stage 5: Production Deploy — US Region
+  # ════════════════════════════════════════════════════════════════════════════
+
+  - group: ":us: Production Deploy (US)"
+    depends_on: "block"
+    steps:
+      - label: ":canary: Canary Deploy (US)"
+        command: ".buildkite/scripts/deploy-canary.sh"
+        env:
+          DEPLOY_ENV: production
+          DEPLOY_REGION: us-east-1
+          IMAGE_TAG: "$BUILDKITE_COMMIT"
+          CANARY_WEIGHT: "10"  # 10% of traffic to new version
+          NAMESPACE: production
+        concurrency: 1
+        concurrency_group: "deploy/prod-us/product-catalog"
+        agents:
+          queue: "deploy-prod"
+
+      - label: ":chart_with_upwards_trend: Canary Analysis (US)"
+        command: ".buildkite/scripts/canary-analysis.sh"
+        env:
+          DEPLOY_REGION: us-east-1
+          CANARY_DURATION: "300"  # 5 minutes of observation
+          ERROR_RATE_THRESHOLD: "0.01"  # 1% max error rate
+          LATENCY_P99_THRESHOLD: "500"  # 500ms SLO target
+        depends_on: "canary-deploy-us"
+
+      - label: ":kubernetes: Full Rollout (US)"
+        command: ".buildkite/scripts/deploy.sh"
+        env:
+          DEPLOY_ENV: production
+          DEPLOY_REGION: us-east-1
+          IMAGE_TAG: "$BUILDKITE_COMMIT"
+          HELM_VALUES: "values-production.yaml,values-us.yaml"
+          NAMESPACE: production
+        depends_on: "canary-analysis-us"
+        concurrency: 1
+        concurrency_group: "deploy/prod-us/product-catalog"
+        agents:
+          queue: "deploy-prod"
+
+      - label: ":stethoscope: Production Smoke Tests (US)"
+        command: ".buildkite/scripts/smoke-test.sh"
+        env:
+          TARGET_URL: "https://catalog-us.marketplace.com"
+          EXPECTED_VERSION: "$BUILDKITE_COMMIT"
+        depends_on: "full-rollout-us"
+
+  - wait: ~
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # Stage 6: Production Deploy — AU Region
+  # ════════════════════════════════════════════════════════════════════════════
+
+  - group: ":australia: Production Deploy (AU)"
+    steps:
+      - label: ":kubernetes: Deploy AU Region"
+        command: ".buildkite/scripts/deploy.sh"
+        env:
+          DEPLOY_ENV: production
+          DEPLOY_REGION: ap-southeast-2
+          IMAGE_TAG: "$BUILDKITE_COMMIT"
+          HELM_VALUES: "values-production.yaml,values-au.yaml"
+          NAMESPACE: production
+          KUBECONFIG_CONTEXT: "arn:aws:eks:ap-southeast-2:123456789:cluster/production-au"
+        concurrency: 1
+        concurrency_group: "deploy/prod-au/product-catalog"
+        agents:
+          queue: "deploy-prod"
+
+      - label: ":stethoscope: Production Smoke Tests (AU)"
+        command: ".buildkite/scripts/smoke-test.sh"
+        env:
+          TARGET_URL: "https://catalog-au.marketplace.com"
+          EXPECTED_VERSION: "$BUILDKITE_COMMIT"
+        depends_on: "deploy-au-region"
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # Post-Deploy: Notify & Record
+  # ════════════════════════════════════════════════════════════════════════════
+
+  - wait: ~
+
+  - label: ":mega: Post-Deploy Notification"
+    command: ".buildkite/scripts/notify.sh"
+    env:
+      SLACK_CHANNEL: "#platform-deploys"
+      SERVICE: "product-catalog"
+      VERSION: "$BUILDKITE_COMMIT"
+      BUILD_URL: "$BUILDKITE_BUILD_URL"

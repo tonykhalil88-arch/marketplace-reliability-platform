@@ -1,0 +1,63 @@
+# ─── AU Region (Melbourne / ap-southeast-2) ──────────────────────────────────
+# Secondary region — serves Asia-Pacific traffic. Lower baseline traffic
+# but higher network latency to cross-region dependencies.
+#
+# Key differences from US:
+#   - Fewer replicas (less traffic volume)
+#   - Relaxed circuit breaker timeouts (higher baseline latency to US services)
+#   - Time-based scaling to handle Melbourne business hours peak
+#   - Deploy windows aligned with AU team availability (AEST)
+
+config:
+  region: "ap-southeast-2"
+  # Relaxed circuit breaker for AU — cross-region calls to US-based
+  # dependencies have ~150ms additional round-trip latency
+  circuitBreaker:
+    failureThreshold: 7          # More tolerant of transient failures
+    recoveryTimeoutSeconds: 45   # Longer recovery window
+    halfOpenMaxCalls: 3
+
+autoscaling:
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Pods
+      pods:
+        metric:
+          name: http_request_duration_seconds_p99
+        target:
+          # AU target: 600ms trigger (SLO accounts for cross-region latency)
+          averageValue: "600m"
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 90  # Slightly more conservative
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 600  # 10 min — avoid scaling down before
+                                       # AU morning traffic ramp-up
+
+ingress:
+  hosts:
+    - host: catalog-au.marketplace.com
+      paths:
+        - path: /
+          pathType: Prefix
+
+nodeSelector:
+  topology.kubernetes.io/region: ap-southeast-2
+
+# Tolerate AU-specific node taints (e.g., spot instances for cost savings)
+tolerations:
+  - key: "cloud.google.com/gke-spot"
+    operator: "Equal"
+    value: "true"
+    effect: "NoSchedule"

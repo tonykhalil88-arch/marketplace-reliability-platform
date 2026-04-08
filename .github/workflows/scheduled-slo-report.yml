@@ -1,0 +1,109 @@
+# ─── Weekly SLO Report ───────────────────────────────────────────────────────
+# Runs every Monday at 9am AEST (Sunday 11pm UTC) to generate and post
+# a weekly SLO compliance report to Slack.
+#
+# Timed for Monday morning Melbourne so the AU team sees it at start of week,
+# and US team (Sunday evening ET) can review before their Monday.
+# This demonstrates cross-timezone awareness.
+
+name: Weekly SLO Report
+
+on:
+  schedule:
+    # 11pm UTC Sunday = 9am AEST Monday = 7pm ET Sunday
+    - cron: "0 23 * * 0"
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  slo-report:
+    name: "Generate SLO Report"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Generate SLO Report
+        env:
+          DD_API_KEY: ${{ secrets.DD_API_KEY }}
+          DD_APP_KEY: ${{ secrets.DD_APP_KEY }}
+        run: |
+          pip install httpx
+          python3 << 'PYEOF'
+          import httpx
+          import json
+          import os
+          from datetime import datetime, timedelta
+
+          DD_API_KEY = os.environ.get("DD_API_KEY", "")
+          DD_APP_KEY = os.environ.get("DD_APP_KEY", "")
+
+          headers = {
+              "DD-API-KEY": DD_API_KEY,
+              "DD-APPLICATION-KEY": DD_APP_KEY,
+          }
+
+          # Fetch SLO data from Datadog
+          slo_ids = {
+              "Availability (Redbubble)": os.environ.get("REDBUBBLE_SLO_ID", ""),
+              "Availability (TeePublic)": os.environ.get("TEEPUBLIC_SLO_ID", ""),
+              "Latency (Product Catalog)": os.environ.get("LATENCY_SLO_ID", ""),
+          }
+
+          report_lines = [
+              f"# Weekly SLO Report — {datetime.now().strftime('%Y-%m-%d')}",
+              "",
+              "| SLO | Target | Current | Status | Error Budget |",
+              "|-----|--------|---------|--------|-------------|",
+          ]
+
+          for name, slo_id in slo_ids.items():
+              if not slo_id:
+                  report_lines.append(f"| {name} | - | - | ⚠️ Not configured | - |")
+                  continue
+
+              try:
+                  resp = httpx.get(
+                      f"https://api.datadoghq.com/api/v1/slo/{slo_id}",
+                      headers=headers,
+                      timeout=10,
+                  )
+                  data = resp.json().get("data", {})
+                  thresholds = data.get("thresholds", [{}])
+                  current = thresholds[0].get("current", {})
+                  target = thresholds[0].get("target", 0)
+                  sli_value = current.get("sli_value", 0)
+                  remaining = current.get("error_budget_remaining", 0)
+
+                  status = "✅" if sli_value >= target else "❌"
+                  report_lines.append(
+                      f"| {name} | {target}% | {sli_value:.3f}% | {status} | {remaining:.1f}% |"
+                  )
+              except Exception as e:
+                  report_lines.append(f"| {name} | - | - | ⚠️ Error | {e} |")
+
+          report = "\n".join(report_lines)
+          print(report)
+
+          # Write report for artifact upload
+          with open("slo-report.md", "w") as f:
+              f.write(report)
+          PYEOF
+
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: slo-report
+          path: slo-report.md
+
+      - name: Post to Slack
+        if: env.SLACK_WEBHOOK_URL != ''
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          REPORT=$(cat slo-report.md)
+          curl -sf -X POST "${SLACK_WEBHOOK_URL}" \
+            -H "Content-Type: application/json" \
+            -d "{\"text\": \"Weekly SLO Report\n\`\`\`\n${REPORT}\n\`\`\`\"}"

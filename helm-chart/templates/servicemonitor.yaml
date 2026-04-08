@@ -1,0 +1,29 @@
+{{- if .Values.serviceMonitor.enabled -}}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "product-catalog.fullname" . }}
+  labels:
+    {{- include "product-catalog.labels" . | nindent 4 }}
+    {{- with .Values.serviceMonitor.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "product-catalog.selectorLabels" . | nindent 6 }}
+  endpoints:
+    - port: http
+      path: {{ .Values.serviceMonitor.path }}
+      interval: {{ .Values.serviceMonitor.interval }}
+      # Datadog-compatible relabeling: map Kubernetes labels
+      # to Datadog unified service tags for seamless correlation
+      # between metrics, traces, and logs.
+      metricRelabelings:
+        - sourceLabels: [__name__]
+          regex: "http_requests_total|http_request_duration_seconds.*|app_errors_total|http_active_requests"
+          action: keep
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace }}
+{{- end }}

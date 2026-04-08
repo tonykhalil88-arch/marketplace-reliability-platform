@@ -1,0 +1,181 @@
+# ─── Default Values ──────────────────────────────────────────────────────────
+# Base configuration — override per-environment and per-region via
+# values-staging.yaml, values-production.yaml, values-us.yaml, values-au.yaml
+
+replicaCount: 2
+
+image:
+  repository: 123456789.dkr.ecr.us-east-1.amazonaws.com/product-catalog
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+# ─── Service Configuration ───────────────────────────────────────────────────
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+# ─── Application Configuration ───────────────────────────────────────────────
+
+config:
+  region: "us-east-1"
+  environment: "development"
+  logLevel: "info"
+  # Circuit breaker settings for downstream dependencies
+  circuitBreaker:
+    failureThreshold: 5
+    recoveryTimeoutSeconds: 30
+    halfOpenMaxCalls: 3
+
+# ─── Resource Management ────────────────────────────────────────────────────
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+# ─── Health Probes ───────────────────────────────────────────────────────────
+# Tuned for a Python/FastAPI service:
+#   - initialDelaySeconds accounts for interpreter startup
+#   - readiness is more aggressive than liveness to avoid sending
+#     traffic to pods that aren't ready while keeping them alive
+#     during transient dependency issues
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 15
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 2
+
+# ─── Autoscaling ─────────────────────────────────────────────────────────────
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  # Scale on both CPU and request latency (custom metric from Datadog)
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Pods
+      pods:
+        metric:
+          name: http_request_duration_seconds_p99
+        target:
+          type: AverageValue
+          averageValue: "400m"  # Scale up if p99 > 400ms (SLO is 500ms)
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 300  # 5 min cooldown to avoid flapping
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 120
+
+# ─── Pod Disruption Budget ───────────────────────────────────────────────────
+# Ensures at least 50% of pods are available during voluntary disruptions
+# (node upgrades, cluster autoscaler, etc.)
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: "50%"
+
+# ─── Ingress ─────────────────────────────────────────────────────────────────
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    # Cloudflare proxy settings
+    cloudflare.com/proxied: "true"
+    # Rate limiting at ingress level
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+  hosts:
+    - host: catalog.marketplace.internal
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+# ─── Monitoring ──────────────────────────────────────────────────────────────
+
+serviceMonitor:
+  enabled: true
+  interval: 15s
+  path: /metrics
+  # Additional labels for Datadog to pick up
+  additionalLabels:
+    team: platform
+    slo-tracked: "true"
+
+# ─── Pod Scheduling ─────────────────────────────────────────────────────────
+
+# Anti-affinity: spread pods across nodes for high availability
+podAntiAffinity:
+  enabled: true
+  # "preferred" allows scheduling on same node if no other option
+  # "required" would block scheduling entirely — too strict for small clusters
+  type: preferred
+
+nodeSelector: {}
+
+tolerations: []
+
+# ─── Security ────────────────────────────────────────────────────────────────
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+# ─── Service Account ────────────────────────────────────────────────────────
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+# ─── Lifecycle ───────────────────────────────────────────────────────────────
+# PreStop hook gives the load balancer time to deregister the pod
+# before it starts shutting down — prevents dropped connections during deploys
+
+terminationGracePeriodSeconds: 45
+preStopHookSleepSeconds: 5
